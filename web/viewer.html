@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<!--
+Copyright 2012 Mozilla Foundation
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Adobe CMap resources are covered by their own copyright but the same license:
+
+    Copyright 1990-2015 Adobe Systems Incorporated.
+
+See https://github.com/adobe-type-tools/cmap-resources
+-->
+<html dir="ltr" mozdisallowselectionprint>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="google" content="notranslate">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>PDF.js viewer</title>
+
+
+    <link rel="stylesheet" href="viewer.css">
+    <link rel="stylesheet" href="annotx.css">
+    <link rel="stylesheet" href="../css/color-picker-pro-dark.min.css">
+
+
+<!-- This snippet is used in production (included from viewer.html) -->
+<link rel="resource" type="application/l10n" href="locale/locale.properties">
+
+<script src="../vue.min.js"></script>
+<script src="../build/pdf.js"></script>
+
+
+
+    <script src="viewer.js"></script>
+    <script src="../fabric.min.js"></script>
+    <script src="../libs/moment.min.js"></script>
+    <script src="../libs/color-picker-pro.min.js"></script>
+    <script src="../viewer-helper.js"></script>
+    <script src="../script.js"></script>
+    <script src="../tooltip.min.js"></script>
+
+  </head>
+
+  <body tabindex="1" class="loadingInProgress">
+    <div id="outerContainer">
+
+      <div id="sidebarContainer">
+        <div id="toolbarSidebar">
+          <div class="splitToolbarButton toggled">
+            <button id="viewThumbnail" class="toolbarButton toggled" title="Show Thumbnails" tabindex="2" data-l10n-id="thumbs">
+               <span data-l10n-id="thumbs_label">Thumbnails</span>
+            </button>
+            <button id="viewOutline" class="toolbarButton" title="Show Document Outline (double-click to expand/collapse all items)" tabindex="3" data-l10n-id="document_outline">
+               <span data-l10n-id="document_outline_label">Document Outline</span>
+            </button>
+            <button id="viewAttachments" class="toolbarButton" title="Show Attachments" tabindex="4" data-l10n-id="attachments">
+               <span data-l10n-id="attachments_label">Attachments</span>
+            </button>
+            <button id="viewAnnotations" class="toolbarButton" title="Show Annotations" tabindex="5">
+            </button>
+          </div>
+        </div>
+        <div id="sidebarContent">
+          <div id="thumbnailView">
+          </div>
+          <div id="outlineView" class="hidden">
+          </div>
+          <div id="attachmentsView" class="hidden">
+          </div>
+          <div id="annotationsView" class="hidden">
+            <section annotv-page-id="1" class="annot-page" v-for="page in pageAnnotations">
+              <div class="page-num">Page {{page.pageNumber}}</div>
+              <div class="annotation-conts">
+                <div class="annotation-cont" v-for="annot in page.annots">
+                  <div class="title">
+                    <div class="annot-info">
+                      <span class="icon highlight" v-if="annot.atype == 'ink'">
+                        <svg viewBox="0 0 24 24"><path d="m0 0h24v24h-24z" fill="none"></path><path d="m9.66172796 8.5226409 4.24264064-4.24264069 7.0710679 7.07106779-4.2426407 4.2426407c-.3905243.3905243-1.0236893.3905243-1.4142136 0l-5.65685424-5.65685424c-.3905243-.39052429-.3905243-1.02368927 0-1.41421356zm-.70710679 2.1213203 5.65685423 5.6568543-5.01218758 2.5060938c-.38498866.1924943-.84996012.1170398-1.15432038-.1873204l-1.80911966-1.8091197c-.30436026-.3043602-.37981474-.7693317-.18732041-1.1543204zm-2.82842712 7.0710679 1.41421356 1.4142135c-1.31993275 1.0370899-2.14489066 1.3906433-2.47487373 1.0606602-.32998308-.3299831.02357031-1.154941 1.06066017-2.4748737z"></path></svg>
+                      </span>
+                      <span class="author">{{annot.author}}</span>
+                    </div>
+                    <div class="actions">
+                      <div class="edit-annot mAnnotIcon">
+                        <svg viewBox="0 0 24 24" height="24" width="24">
+                          <path d="m 17.038835,2.26301 4.695331,4.69572 M 1.043407,20.86952 3.1302208,22.9565 M 2.0868139,17.2173 3.1302208,18.26079 H 5.738738 v 2.60873 l 1.0434069,1.04349 M 17.82139,6.17611 5.738738,18.26079 M 15.473724,3.82825 18.693678,0.60803 a 2.0941176,2.0942888 0 0 1 2.950755,0 l 1.744576,1.74472 a 2.0868138,2.0869844 0 0 1 0,2.951 L 20.169055,8.52396 M 6e-8,24 2.0868139,17.2173 15.473724,3.82825 20.169055,8.52396 6.7821449,21.91301 Z"
+                             style="stroke-width:1.04344952" />
+                        </svg>
+                      </div>
+                      <div class="rem-annot mAnnotIcon">
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                          <path d="M 3.5999997,0 -1e-7,3.60002 8.3999997,12 -1e-7,20.39998 3.5999997,24 12,15.59998 20.4,24 24,20.39998 15.6,12 24,3.60002 20.4,0 12,8.40001 Z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="time">Dec 9, 3:12pm</div>
+                  <div class="comment-cont">
+                    <div class="comment-view hidden">
+                      <div class="comment">
+                        
+                      </div>
+                    </div>
+                    <div class="comment-cont hidden">
+                      <div class="comment-input">
+                        <div class="toolbarField ac-input" contenteditable></div>
+                      </div>
+                      <div>
+                        <button class="overlayButton">Save</button>
+                        <button class="overlayButton">Cancel</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="replies">
+                    <div class="reply-cont">
+                      <div class="reply-view">
+                        <div class="title">
+                          Guest - Dec 9, 3:12pm
+                        </div>
+                        <div class="reply">
+                          Lorem Lorem Lorem
+                        </div>
+                      </div>
+                      <div class="reply-input hidden">
+                        <div class="comment-input">
+                          <div class="toolbarField ac-input" contenteditable></div>
+                        </div>
+                        <div>
+                          <button class="overlayButton reply-save">Save</button>
+                          <button class="overlayButton reply-cancel">Cancel</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="new-reply">
+                    <div class="comment-input">
+                      <div class="toolbarField ac-input" contenteditable></div>
+                    </div>
+                    <div>
+                      <button class="overlayButton reply">Reply</button>
+                      <button class="overlayButton new-reply-cancel">Cancel</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+        <div id="sidebarResizer" class="hidden"></div>
+      </div>  <!-- sidebarContainer -->
+      
+      <div id="mainContainer">
+        <div class="findbar hidden doorHanger" id="findbar">
+          <div id="findbarInputContainer">
+            <input id="findInput" class="toolbarField" title="Find" placeholder="Find in document…" tabindex="91" data-l10n-id="find_input">
+            <div class="splitToolbarButton">
+              <button id="findPrevious" class="toolbarButton findPrevious" title="Find the previous occurrence of the phrase" tabindex="92" data-l10n-id="find_previous">
+                <span data-l10n-id="find_previous_label">Previous</span>
+              </button>
+              <div class="splitToolbarButtonSeparator"></div>
+              <button id="findNext" class="toolbarButton findNext" title="Find the next occurrence of the phrase" tabindex="93" data-l10n-id="find_next">
+                <span data-l10n-id="find_next_label">Next</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="findbarOptionsOneContainer">
+            <input type="checkbox" id="findHighlightAll" class="toolbarField" tabindex="94">
+            <label for="findHighlightAll" class="toolbarLabel" data-l10n-id="find_highlight">Highlight all</label>
+            <input type="checkbox" id="findMatchCase" class="toolbarField" tabindex="95">
+            <label for="findMatchCase" class="toolbarLabel" data-l10n-id="find_match_case_label">Match case</label>
+          </div>
+          <div id="findbarOptionsTwoContainer">
+            <input type="checkbox" id="findEntireWord" class="toolbarField" tabindex="96">
+            <label for="findEntireWord" class="toolbarLabel" data-l10n-id="find_entire_word_label">Whole words</label>
+            <span id="findResultsCount" class="toolbarLabel hidden"></span>
+          </div>
+
+          <div id="findbarMessageContainer">
+            <span id="findMsg" class="toolbarLabel"></span>
+          </div>
+        </div>  <!-- findbar -->
+
+        <div id="secondaryToolbar" class="secondaryToolbar hidden doorHangerRight">
+          <div id="secondaryToolbarButtonContainer">
+            <button id="secondaryPresentationMode" class="secondaryToolbarButton presentationMode visibleLargeView" title="Switch to Presentation Mode" tabindex="51" data-l10n-id="presentation_mode">
+              <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
+            </button>
+
+            <button id="secondaryOpenFile" class="secondaryToolbarButton openFile visibleLargeView" title="Open File" tabindex="52" data-l10n-id="open_file">
+              <span data-l10n-id="open_file_label">Open</span>
+            </button>
+
+            <button id="secondaryPrint" class="secondaryToolbarButton print visibleMediumView" title="Print" tabindex="53" data-l10n-id="print">
+              <span data-l10n-id="print_label">Print</span>
+            </button>
+
+            <button id="secondaryDownload" class="secondaryToolbarButton download visibleMediumView" title="Download" tabindex="54" data-l10n-id="download">
+              <span data-l10n-id="download_label">Download</span>
+            </button>
+
+            <a href="#" id="secondaryViewBookmark" class="secondaryToolbarButton bookmark visibleSmallView" title="Current view (copy or open in new window)" tabindex="55" data-l10n-id="bookmark">
+              <span data-l10n-id="bookmark_label">Current View</span>
+            </a>
+
+            <div class="horizontalToolbarSeparator visibleLargeView"></div>
+
+            <button id="firstPage" class="secondaryToolbarButton firstPage" title="Go to First Page" tabindex="56" data-l10n-id="first_page">
+              <span data-l10n-id="first_page_label">Go to First Page</span>
+            </button>
+            <button id="lastPage" class="secondaryToolbarButton lastPage" title="Go to Last Page" tabindex="57" data-l10n-id="last_page">
+              <span data-l10n-id="last_page_label">Go to Last Page</span>
+            </button>
+
+            <div class="horizontalToolbarSeparator"></div>
+
+            <button id="pageRotateCw" class="secondaryToolbarButton rotateCw" title="Rotate Clockwise" tabindex="58" data-l10n-id="page_rotate_cw">
+              <span data-l10n-id="page_rotate_cw_label">Rotate Clockwise</span>
+            </button>
+            <button id="pageRotateCcw" class="secondaryToolbarButton rotateCcw" title="Rotate Counterclockwise" tabindex="59" data-l10n-id="page_rotate_ccw">
+              <span data-l10n-id="page_rotate_ccw_label">Rotate Counterclockwise</span>
+            </button>
+
+            <div class="horizontalToolbarSeparator"></div>
+
+            <!-- <button id="cursorSelectTool" class="secondaryToolbarButton selectTool toggled" title="Enable Text Selection Tool" tabindex="60" data-l10n-id="cursor_text_select_tool">
+              <span data-l10n-id="cursor_text_select_tool_label">Text Selection Tool</span>
+            </button>
+            <button id="cursorHandTool" class="secondaryToolbarButton handTool" title="Enable Hand Tool" tabindex="61" data-l10n-id="cursor_hand_tool">
+              <span data-l10n-id="cursor_hand_tool_label">Hand Tool</span>
+            </button> -->
+
+            <div class="horizontalToolbarSeparator"></div>
+
+            <button id="scrollVertical" class="secondaryToolbarButton scrollModeButtons scrollVertical toggled" title="Use Vertical Scrolling" tabindex="62" data-l10n-id="scroll_vertical">
+              <span data-l10n-id="scroll_vertical_label">Vertical Scrolling</span>
+            </button>
+            <button id="scrollHorizontal" class="secondaryToolbarButton scrollModeButtons scrollHorizontal" title="Use Horizontal Scrolling" tabindex="63" data-l10n-id="scroll_horizontal">
+              <span data-l10n-id="scroll_horizontal_label">Horizontal Scrolling</span>
+            </button>
+            <button id="scrollWrapped" class="secondaryToolbarButton scrollModeButtons scrollWrapped" title="Use Wrapped Scrolling" tabindex="64" data-l10n-id="scroll_wrapped">
+              <span data-l10n-id="scroll_wrapped_label">Wrapped Scrolling</span>
+            </button>
+
+            <div class="horizontalToolbarSeparator scrollModeButtons"></div>
+
+            <button id="spreadNone" class="secondaryToolbarButton spreadModeButtons spreadNone toggled" title="Do not join page spreads" tabindex="65" data-l10n-id="spread_none">
+              <span data-l10n-id="spread_none_label">No Spreads</span>
+            </button>
+            <button id="spreadOdd" class="secondaryToolbarButton spreadModeButtons spreadOdd" title="Join page spreads starting with odd-numbered pages" tabindex="66" data-l10n-id="spread_odd">
+              <span data-l10n-id="spread_odd_label">Odd Spreads</span>
+            </button>
+            <button id="spreadEven" class="secondaryToolbarButton spreadModeButtons spreadEven" title="Join page spreads starting with even-numbered pages" tabindex="67" data-l10n-id="spread_even">
+              <span data-l10n-id="spread_even_label">Even Spreads</span>
+            </button>
+
+            <div class="horizontalToolbarSeparator spreadModeButtons"></div>
+
+            <button id="documentProperties" class="secondaryToolbarButton documentProperties" title="Document Properties…" tabindex="68" data-l10n-id="document_properties">
+              <span data-l10n-id="document_properties_label">Document Properties…</span>
+            </button>
+          </div>
+        </div>  <!-- secondaryToolbar -->
+
+        <div class="toolbar">
+          <div id="toolbarContainer">
+            <div id="toolbarViewer">
+              <div id="toolbarViewerLeft">
+                <button id="sidebarToggle" class="toolbarButton" title="Toggle Sidebar" tabindex="11" data-l10n-id="toggle_sidebar">
+                  <span data-l10n-id="toggle_sidebar_label">Toggle Sidebar</span>
+                </button>
+                <div class="toolbarButtonSpacer"></div>
+                <button id="cursorSelectTool" class="toolbarButton selectTool toggled" title="Enable Text Selection Tool" tabindex="60" data-l10n-id="cursor_text_select_tool">
+                  <span data-l10n-id="cursor_text_select_tool_label">Text Selection Tool</span>
+                </button>
+                <button id="cursorHandTool" class="toolbarButton handTool" title="Enable Hand Tool" tabindex="61" data-l10n-id="cursor_hand_tool">
+                  <span data-l10n-id="cursor_hand_tool_label">Hand Tool</span>
+                </button>
+                <button id="viewFind" class="toolbarButton" title="Find in Document" tabindex="12" data-l10n-id="findbar">
+                  <span data-l10n-id="findbar_label">Find</span>
+                </button>
+                <div class="splitToolbarButton hiddenSmallView">
+                  <button class="toolbarButton pageUp" title="Previous Page" id="previous" tabindex="13" data-l10n-id="previous">
+                    <span data-l10n-id="previous_label">Previous</span>
+                  </button>
+                  <div class="splitToolbarButtonSeparator"></div>
+                  <button class="toolbarButton pageDown" title="Next Page" id="next" tabindex="14" data-l10n-id="next">
+                    <span data-l10n-id="next_label">Next</span>
+                  </button>
+                </div>
+                <input type="number" id="pageNumber" class="toolbarField pageNumber" title="Page" value="1" size="4" min="1" tabindex="15" data-l10n-id="page">
+                <span id="numPages" class="toolbarLabel"></span>
+              </div>
+              <div id="toolbarViewerRight">
+                <button id="presentationMode" class="toolbarButton presentationMode hiddenLargeView" title="Switch to Presentation Mode" tabindex="31" data-l10n-id="presentation_mode">
+                  <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
+                </button>
+
+                <button id="openFile" class="toolbarButton openFile hiddenLargeView" title="Open File" tabindex="32" data-l10n-id="open_file">
+                  <span data-l10n-id="open_file_label">Open</span>
+                </button>
+
+                <button id="print" class="toolbarButton print hiddenMediumView" title="Print" tabindex="33" data-l10n-id="print">
+                  <span data-l10n-id="print_label">Print</span>
+                </button>
+
+                <button id="download" class="toolbarButton download hiddenMediumView" title="Download" tabindex="34" data-l10n-id="download">
+                  <span data-l10n-id="download_label">Download</span>
+                </button>
+                <a href="#" id="viewBookmark" class="toolbarButton bookmark hiddenSmallView" title="Current view (copy or open in new window)" tabindex="35" data-l10n-id="bookmark">
+                  <span data-l10n-id="bookmark_label">Current View</span>
+                </a>
+
+                <div class="verticalToolbarSeparator hiddenSmallView"></div>
+
+                <button id="secondaryToolbarToggle" class="toolbarButton" title="Tools" tabindex="36" data-l10n-id="tools">
+                  <span data-l10n-id="tools_label">Tools</span>
+                </button>
+              </div>
+              <div id="toolbarViewerMiddle">
+                <div class="splitToolbarButton">
+                  <button id="zoomOut" class="toolbarButton zoomOut" title="Zoom Out" tabindex="21" data-l10n-id="zoom_out">
+                    <span data-l10n-id="zoom_out_label">Zoom Out</span>
+                  </button>
+                  <div class="splitToolbarButtonSeparator"></div>
+                  <button id="zoomIn" class="toolbarButton zoomIn" title="Zoom In" tabindex="22" data-l10n-id="zoom_in">
+                    <span data-l10n-id="zoom_in_label">Zoom In</span>
+                   </button>
+                </div>
+                <span id="scaleSelectContainer" class="dropdownToolbarButton">
+                  <select id="scaleSelect" title="Zoom" tabindex="23" data-l10n-id="zoom">
+                    <option id="pageAutoOption" title="" value="auto" selected="selected" data-l10n-id="page_scale_auto">Automatic Zoom</option>
+                    <option id="pageActualOption" title="" value="page-actual" data-l10n-id="page_scale_actual">Actual Size</option>
+                    <option id="pageFitOption" title="" value="page-fit" data-l10n-id="page_scale_fit">Page Fit</option>
+                    <option id="pageWidthOption" title="" value="page-width" data-l10n-id="page_scale_width">Page Width</option>
+                    <option id="customScaleOption" title="" value="custom" disabled="disabled" hidden="true"></option>
+                    <option title="" value="0.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 50 }'>50%</option>
+                    <option title="" value="0.75" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 75 }'>75%</option>
+                    <option title="" value="1" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 100 }'>100%</option>
+                    <option title="" value="1.25" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 125 }'>125%</option>
+                    <option title="" value="1.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 150 }'>150%</option>
+                    <option title="" value="2" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 200 }'>200%</option>
+                    <option title="" value="3" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 300 }'>300%</option>
+                    <option title="" value="4" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 400 }'>400%</option>
+                  </select>
+                </span>
+              </div>
+              <div id="annotx-toolbar">
+                <div id="toolbarViewerAnnots">
+                  <button id="annotx-freeHand" class="toolbarButton" title="Free Text">
+                    <div class="mAnnotIcon" ic-a-type="ink">
+                      <svg viewBox="0 0 24 24"><path d="m0 0h24v24h-24z" fill="none"></path><path d="m9.66172796 8.5226409 4.24264064-4.24264069 7.0710679 7.07106779-4.2426407 4.2426407c-.3905243.3905243-1.0236893.3905243-1.4142136 0l-5.65685424-5.65685424c-.3905243-.39052429-.3905243-1.02368927 0-1.41421356zm-.70710679 2.1213203 5.65685423 5.6568543-5.01218758 2.5060938c-.38498866.1924943-.84996012.1170398-1.15432038-.1873204l-1.80911966-1.8091197c-.30436026-.3043602-.37981474-.7693317-.18732041-1.1543204zm-2.82842712 7.0710679 1.41421356 1.4142135c-1.31993275 1.0370899-2.14489066 1.3906433-2.47487373 1.0606602-.32998308-.3299831.02357031-1.154941 1.06066017-2.4748737z"></path></svg>
+                    </div>
+                  </button>
+                  <button id="annotx-textTools" class="toolbarButton annot-popper" data-ref="annot-text-tools">
+                    <div class="mAnnotIcon">
+                      <svg
+                        viewBox="0 0 24 24">
+                        <path d="m0 0h24v24h-24z" fill="none"></path>
+                        <path
+                          d="m19 3c1.1 0 2 .9 2 2v14c0 1.1-.9 2-2 2h-14c-1.1 0-2-.9-2-2v-14c0-1.1.9-2 2-2zm-4.9471874 12.3412499.7890625 2.34375h2.4921875l-4.2578125-11.37499996h-2.171875l-4.23437502 11.37499996h2.4921875l.78125-2.34375zm-3.4765625-1.8984375 1.4140625-4.25781246 1.4296875 4.25781246z">
+                        </path>
+                      </svg>
+                    </div>
+                    <div id="annot-text-tools" class="annot-popup">
+                      <div class="annotButton active" id="highlightToolButton" data-element="highlightToolButton">
+                        <div class="annotIcon" ic-a-type="highlight"><svg
+                            viewBox="0 0 24 24">
+                            <path d="m0 0h24v24h-24z" fill="none"></path>
+                            <path
+                              d="m19 3c1.1 0 2 .9 2 2v14c0 1.1-.9 2-2 2h-14c-1.1 0-2-.9-2-2v-14c0-1.1.9-2 2-2zm-4.9471874 12.3412499.7890625 2.34375h2.4921875l-4.2578125-11.37499996h-2.171875l-4.23437502 11.37499996h2.4921875l.78125-2.34375zm-3.4765625-1.8984375 1.4140625-4.25781246 1.4296875 4.25781246z">
+                            </path>
+                          </svg></div>
+                      </div>
+                      <div class="annotButton" id="underlineToolButton" data-element="underlineToolButton">
+                        <div class="annotIcon" ic-a-type="underline"><svg viewBox="0 0 24 24">
+                            <path d="m0 0h24v24h-24z" fill="none"></path>
+                            <path
+                              d="m14.3076923 14.3214286h-4.62417582l-.87912088 2.6785714h-2.8043956l4.7648352-13h2.443956l4.7912088 13h-2.8043956zm-3.9120879-2.1696429h3.2l-1.6087912-4.86607141zm-5.3956044 6.3482143h14v2h-14z">
+                            </path>
+                          </svg></div>
+                      </div>
+                      <div class="annotButton" id="strikeoutToolButton" data-element="strikeoutToolButton">
+                        <div class="annotIcon" ic-a-type="strike"><svg viewBox="0 0 24 24">
+                            <path d="m0 0h24v24h-24z" fill="none"></path>
+                            <path
+                              d="m9.52134855 16-.71695295 3h-2.8043956l1.02103611-3zm-1.13893097-4 2.38241762-7h2.443956l2.3956044 7h-2.3895877l-1.2279947-3.71428571-1.2145741 3.71428571zm8.59089482 4 1.0266876 3h-2.8043956l-.7241225-3zm-11.9733124-3h14v2h-14z">
+                            </path>
+                          </svg></div>
+                      </div>
+                    </div>
+                  </button>
+                  <button id="annotx-shapes" class="toolbarButton annot-popper" data-ref="annot-shapes">
+                      <div class="mAnnotIcon" >
+                        <svg viewBox="0 0 24 24">
+                          <path d="m0 0h24v24h-24z" fill="none"></path>
+                          <path d="m4 4h16v16h-16zm2 2v12h12v-12z"></path>
+                        </svg>
+                      </div>
+                      <div id="annot-shapes" class="annot-popup" data-element="toolsOverlay">
+                        <div class="annotButton active" data-element="rectangleToolButton">
+                          <div class="annotIcon" ic-a-type="rect">
+                            <svg viewBox="0 0 24 24">
+                              <path d="m0 0h24v24h-24z" fill="none"></path>
+                              <path d="m4 4h16v16h-16zm2 2v12h12v-12z"></path>
+                            </svg>
+                          </div>
+                        </div>
+                        <div class="annotButton" id="ellipseToolButton" data-element="ellipseToolButton">
+                          <div class="annotIcon" ic-a-type="ellipse"><svg viewBox="0 0 24 24">
+                              <path d="m0 0h24v24h-24z" fill="none"></path>
+                              <path
+                                d="m12 21c-4.97056275 0-9-4.0294373-9-9 0-4.97056275 4.02943725-9 9-9 4.9705627 0 9 4.02943725 9 9 0 4.9705627-4.0294373 9-9 9zm0-2c3.8659932 0 7-3.1340068 7-7 0-3.86599325-3.1340068-7-7-7-3.86599325 0-7 3.13400675-7 7 0 3.8659932 3.13400675 7 7 7z">
+                              </path>
+                            </svg></div>
+                        </div>
+                        <div class="annotButton" id="lineToolButton" data-element="lineToolButton">
+                          <div class="annotIcon" ic-a-type="line"><svg viewBox="0 0 24 24">
+                              <path d="m0 0h24v24h-24z" fill="none"></path>
+                              <path d="m2 11h20v2h-20z" transform="matrix(.70710678 -.70710678 .70710678 .70710678 -4.970563 12)"></path>
+                            </svg></div>
+                        </div>
+                        <div class="annotButton" id="arrowToolButton" data-element="arrowToolButton">
+                          <div class="annotIcon" ic-a-type="arrow"><svg viewBox="0 0 24 24">
+                              <path d="m0 0h24v24h-24z" fill="none"></path>
+                              <path
+                                d="m16.9739609 5.6099999h-2.5857864v-2h4 2v6h-2v-2.58578644l-13.36396104 13.36396104-1.41421356-1.4142136z">
+                              </path>
+                            </svg>
+                          </div>
+                      </div>
+                  </button>
+                  <button id="annotx-signature" class="toolbarButton" title="Signature">
+                    <div class="mAnnotIcon" ic-a-type="signature">
+                      <svg viewBox="0 0 24 24">
+                        <path d="m 0,20.857246 h 24 v 1.142853 H 0 Z M 20.457143,14.114381 C 21.999999,12.171515 24,9.4858207 24,4.857261 24,4.514458 23.771414,4.285834 23.42857,4.285834 c -0.342841,0 -0.571427,0.228661 -0.571427,0.571427 0,3.8285472 -1.428574,6.114254 -2.857145,7.942827 -0.342841,-1.085707 -0.571427,-2.4 -0.571427,-3.9428405 0,-0.2857322 -0.228585,-0.5714267 -0.57143,-0.5714267 -0.285694,0 -0.571427,0.2286614 -0.571427,0.5714267 -0.05715,0.971414 -0.342841,2.0571205 -0.57143,2.1714135 -0.228586,0 -0.514284,-0.799974 -0.571427,-1.5999868 0,-0.2857322 -0.285694,-0.5142802 -0.57143,-0.5142802 C 16.285694,8.914394 16,9.0859845 16,9.4286742 c -0.171439,0.9714138 -0.628573,2.3428528 -1.142857,2.3428528 -0.228586,0 -0.342841,-0.05707 -0.399999,-0.17159 -0.171439,-0.171591 -0.228586,-0.571427 -0.228586,-0.914268 0,-0.228661 0.05715,-0.457133 0.05715,-0.6857193 0,-0.2857322 -0.228586,-0.5714267 -0.514284,-0.5714267 -0.285732,0 -0.571427,0.1715906 -0.628573,0.4571338 0,0.057071 -0.05715,0.2857322 -0.05715,0.6285732 -0.114293,0.971452 -0.457141,2.91428 -1.657141,2.91428 -0.399999,0 -0.628569,-0.114142 -0.800001,-0.399988 -0.285694,-0.457133 -0.285694,-1.199999 0,-1.885719 0,0 0,0 0,-0.05707 0.05715,-0.05707 0.05715,-0.17159 0.114293,-0.228661 0,0 0,0 0,0 0.457145,-0.9143056 0.971429,-1.4285859 1.828573,-1.4285859 0.342841,0 0.571426,-0.2286613 0.571426,-0.5714266 0,-0.3428031 -0.228585,-0.5714267 -0.571426,-0.5714267 -2.4,0 -3.0857156,2.3428532 -3.7714276,4.5714132 -0.8000012,2.742879 -1.5428559,4.571452 -3.6571421,4.571452 -2.9142875,0 -4.0000019,-3.771439 -4.0000019,-6.285732 0,-4.914292 2.6857167,-8.000011 5.142859,-8.000011 1.6571412,0 2.2857143,1.314293 2.3428569,1.371439 C 8.7428622,4.799925 9.0857107,4.91418 9.371424,4.799925 9.6571563,4.685784 9.7714265,4.342754 9.6571563,4.057059 9.6000103,3.942918 8.6857271,1.999901 6.2857275,1.999901 c -3.0857154,0 -6.285716161419,3.428597 -6.285716161419,9.142864 0,5.885706 3.371428761419,7.428585 5.142859061419,7.428585 2.9142836,0 3.8857127,-2.571439 4.6285712,-4.857146 0.3999984,0.51428 0.9714254,0.857121 1.6571414,0.857121 1.257142,0 2.000001,-0.914267 2.399999,-2.057121 0.285695,0.228662 0.628574,0.342803 1.028572,0.342803 0.800001,0 1.371428,-0.685719 1.714284,-1.371401 0.228586,0.399987 0.628573,0.685682 1.142857,0.685682 0.342879,0 0.628573,-0.171213 0.857144,-0.399988 0.171439,0.800013 0.399999,1.542841 0.57143,2.171414 -0.800001,1.028599 -1.428574,1.88572 -1.428574,2.914318 0,0.971414 0.742859,1.71428 1.714288,1.71428 1.028572,0 1.714284,-0.914305 1.714284,-1.71428 0,-0.742866 -0.285733,-1.542878 -0.62857,-2.457146 0,-0.114142 -0.05715,-0.171591 -0.05715,-0.285732 z m -1.028572,3.314304 c -0.400002,0 -0.57143,-0.285732 -0.57143,-0.571426 0,-0.514318 0.285732,-1.028598 0.742858,-1.657172 0.228586,0.68572 0.399999,1.2 0.399999,1.657172 0,0.171212 -0.171439,0.571426 -0.571427,0.571426 z"
+                            style="stroke-width:0.57142848"/>
+                      </svg>
+                    </div>
+                  </button>
+                  <button id="annotx-notes" class="toolbarButton" title="Sticky Notes">
+                    <div class="mAnnotIcon" ic-a-type="note">
+                      <svg viewBox="0 0 24 24">
+                        <path
+                          d="m 12.452889,3.9312736 c -4.9050724,0 -8.8814033,3.4897549 -8.8814033,7.7946054 0,1.471325 0.2436352,2.45436 1.0524776,3.628006 l -1.9582554,4.71498 5.0326978,-1.721454 c 1.4838277,0.977666 2.7561683,1.173075 4.7544833,1.173075 4.905072,0 8.881403,-3.489756 8.881403,-7.794607 0,-4.3048505 -3.976331,-7.7946054 -8.881403,-7.7946054 z M 0.72391531,0.10990444 H 23.276084 V 23.890234 H 0.72391531 Z"
+                          style="fill-opacity:1;stroke:#000000;stroke-width:0.63816071;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                          />
+                      </svg>
+                    </div>
+                  </button>
+                  <button id="annotx-text" class="toolbarButton" title="Text">
+                    <div class="mAnnotIcon" ic-a-type="text">
+                      <svg viewBox="0 0 24 24"><path d="m0 0h24v24h-24z" fill="none"></path><path d="m14 17h2v2h-7v-2h2v-9h-3v2h-2v-2-3h13v3 2h-2v-2h-3z"></path></svg>
+                    </div>
+                  </button>
+                  <button id="annotx-stamp" class="toolbarButton" title="Stamp">
+                    <div class="mAnnotIcon stroked" ic-a-type="stamp"><svg viewBox="0 0 24 24">
+                        <path d="m0 0h24v24h-24z" fill="none"></path>
+                        <path
+                          d="m21 19v-14c0-1.1-.9-2-2-2h-14c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-12.5-5.5 2.5 3.01 3.5-4.51 4.5 6h-14z">
+                        </path>
+                      </svg>
+                    </div>
+                  </button>
+                </div>
+                <div class="annotxSeperator"></div>
+                <div class="annotProps">
+                  <button id="annotx-fill" class="toolbarButton mAnnotIcon" title="Fill">
+                    <span class="cover"></span>
+                    <div class="" >
+                      <svg viewBox="0 0 24 24"> <path d="M 8.6729081,3.5068 1.6353297,11.68672 C 0.51961608,13.00607 0.60544021,14.9411 1.806978,16.17249 l 4.806151,4.92554 c 1.2015378,1.23139 3.0896686,1.31934 4.37703,0.17591 l 7.981644,-7.2124 m 3.604613,0.7916 v 0 c -0.772417,0.79161 -1.973954,0.79161 -2.746372,0 L 8.6729081,3.5068 v 0 c 0.9440653,-0.96752 2.4888999,-0.96752 3.4329649,0 l 3.432965,3.51825 c 1.888131,1.93503 4.033734,3.51824 6.522634,4.57372 v 0 c 1.201537,0.61569 1.45901,2.28686 0.514944,3.25437 z m -2.91802,6.50876 c 0,0.96752 0.772417,1.75912 1.716483,1.75912 0.944065,0 1.716482,-0.7916 1.716482,-1.75912 0,-0.96752 -1.716482,-2.63868 -1.716482,-2.63868 0,0 -1.716483,1.67116 -1.716483,2.63868 z M 9.2736769,13.35789 c 0.6007689,0.61569 1.6306581,0.61569 2.2314271,0 0.600769,-0.61569 0.600769,-1.67117 0,-2.28686 -0.600769,-0.61569 -1.6306582,-0.61569 -2.2314271,0 C 5.239943,6.93709 2.9226916,2.45133 4.2100535,1.21994 4.7249983,0.69221 5.926536,0.78016 7.3855462,1.48381" /> </svg>                 
+                    </div>
+                  </button>
+                  <button id="annotx-border" class="toolbarButton mAnnotIcon" title="Border">
+                    <span class="cover"></span>
+                    <div class="" >
+                      <svg viewBox="0 0 24 24">
+                        <path d="m0 0h24v24h-24z" fill="none"></path>
+                        <path d="m4 4h16v16h-16zm2 2v12h12v-12z"></path>
+                      </svg>
+                    </div>
+                  </button>
+                  <button id="annotx-stroke" class="toolbarButton mAnnotIcon annotx-popper" title="Stroke Width">
+                    <div class="" >
+                      <svg viewBox="0 0 24 24">
+                        <path d="m0 0h24v24h-24z" fill="none"></path>
+                        <path d="m2 11h20v2h-20z" transform="matrix(.70710678 -.70710678 .70710678 .70710678 -4.970563 12)"></path>
+                      </svg>
+                    </div>
+                    <div class="dropdown ap-range">
+                      <input type="range" class="annotx-slider" min="0" max="20">
+                    </div>
+                  </button>
+                  <button id="annotx-opacity" class="toolbarButton mAnnotIcon annotx-popper" title="Opacity">
+                    <div class="" >
+                      <svg viewBox="0 0 24 24">
+                        <path d="M 17.66,8 12,2.35 6.34,8 C 4.78,9.56 4,11.64 4,13.64 c 0,2 0.78,4.11 2.34,5.67 1.56,1.56 3.61,2.35 5.66,2.35 2.05,0 4.1,-0.79 5.66,-2.35 C 19.22,17.75 20,15.64 20,13.64 20,11.64 19.22,9.56 17.66,8 Z M 6,14 C 6.01,12 6.62,10.73 7.76,9.6 L 12,5.27 16.24,9.65 C 17.38,10.77 17.99,12 18,14 Z"
+                            />
+                      </svg>                          
+                    </div>
+                    <div class="dropdown ap-range">
+                      <input type="range" class="annotx-slider" min="0" max="100" value="100">
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div id="loadingBar">
+              <div class="progress">
+                <div class="glimmer">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <menu type="context" id="viewerContextMenu">
+          <menuitem id="contextFirstPage" label="First Page"
+                    data-l10n-id="first_page"></menuitem>
+          <menuitem id="contextLastPage" label="Last Page"
+                    data-l10n-id="last_page"></menuitem>
+          <menuitem id="contextPageRotateCw" label="Rotate Clockwise"
+                    data-l10n-id="page_rotate_cw"></menuitem>
+          <menuitem id="contextPageRotateCcw" label="Rotate Counter-Clockwise"
+                    data-l10n-id="page_rotate_ccw"></menuitem>
+        </menu>
+
+        <div id="viewerContainer" tabindex="0">
+          <div id="viewer" class="pdfViewer"></div>
+        </div>
+
+        <div id="errorWrapper" hidden='true'>
+          <div id="errorMessageLeft">
+            <span id="errorMessage"></span>
+            <button id="errorShowMore" data-l10n-id="error_more_info">
+              More Information
+            </button>
+            <button id="errorShowLess" data-l10n-id="error_less_info" hidden='true'>
+              Less Information
+            </button>
+          </div>
+          <div id="errorMessageRight">
+            <button id="errorClose" data-l10n-id="error_close">
+              Close
+            </button>
+          </div>
+          <div class="clearBoth"></div>
+          <textarea id="errorMoreInfo" hidden='true' readonly="readonly"></textarea>
+        </div>
+      </div> <!-- mainContainer -->
+
+      <div id="overlayContainer" class="hidden">
+        <div id="passwordOverlay" class="container hidden">
+          <div class="dialog">
+            <div class="row">
+              <p id="passwordText" data-l10n-id="password_label">Enter the password to open this PDF file:</p>
+            </div>
+            <div class="row">
+              <input type="password" id="password" class="toolbarField">
+            </div>
+            <div class="buttonRow">
+              <button id="passwordCancel" class="overlayButton"><span data-l10n-id="password_cancel">Cancel</span></button>
+              <button id="passwordSubmit" class="overlayButton"><span data-l10n-id="password_ok">OK</span></button>
+            </div>
+          </div>
+        </div>
+        <div id="documentPropertiesOverlay" class="container hidden">
+          <div class="dialog">
+            <div class="row">
+              <span data-l10n-id="document_properties_file_name">File name:</span> <p id="fileNameField">-</p>
+            </div>
+            <div class="row">
+              <span data-l10n-id="document_properties_file_size">File size:</span> <p id="fileSizeField">-</p>
+            </div>
+            <div class="separator"></div>
+            <div class="row">
+              <span data-l10n-id="document_properties_title">Title:</span> <p id="titleField">-</p>
+            </div>
+            <div class="row">
+              <span data-l10n-id="document_properties_author">Author:</span> <p id="authorField">-</p>
+            </div>
+            <div class="row">
+              <span data-l10n-id="document_properties_subject">Subject:</span> <p id="subjectField">-</p>
+            </div>
+            <div class="row">
+              <span data-l10n-id="document_properties_keywords">Keywords:</span> <p id="keywordsField">-</p>
+            </div>
+            <div class="row">
+              <span data-l10n-id="document_properties_creation_date">Creation Date:</span> <p id="creationDateField">-</p>
+            </div>
+            <div class="row">
+              <span data-l10n-id="document_properties_modification_date">Modification Date:</span> <p id="modificationDateField">-</p>
+            </div>
+            <div class="row">
+              <span data-l10n-id="document_properties_creator">Creator:</span> <p id="creatorField">-</p>
+            </div>
+            <div class="separator"></div>
+            <div class="row">
+              <span data-l10n-id="document_properties_producer">PDF Producer:</span> <p id="producerField">-</p>
+            </div>
+            <div class="row">
+              <span data-l10n-id="document_properties_version">PDF Version:</span> <p id="versionField">-</p>
+            </div>
+            <div class="row">
+              <span data-l10n-id="document_properties_page_count">Page Count:</span> <p id="pageCountField">-</p>
+            </div>
+            <div class="row">
+              <span data-l10n-id="document_properties_page_size">Page Size:</span> <p id="pageSizeField">-</p>
+            </div>
+            <div class="separator"></div>
+            <div class="row">
+              <span data-l10n-id="document_properties_linearized">Fast Web View:</span> <p id="linearizedField">-</p>
+            </div>
+            <div class="buttonRow">
+              <button id="documentPropertiesClose" class="overlayButton"><span data-l10n-id="document_properties_close">Close</span></button>
+            </div>
+          </div>
+        </div>
+        <div id="printServiceOverlay" class="container hidden">
+          <div class="dialog">
+            <div class="row">
+              <span data-l10n-id="print_progress_message">Preparing document for printing…</span>
+            </div>
+            <div class="row">
+              <progress value="0" max="100"></progress>
+              <span data-l10n-id="print_progress_percent" data-l10n-args='{ "progress": 0 }' class="relative-progress">0%</span>
+            </div>
+            <div class="buttonRow">
+              <button id="printCancel" class="overlayButton"><span data-l10n-id="print_progress_close">Cancel</span></button>
+            </div>
+          </div>
+        </div>
+      </div>  <!-- overlayContainer -->
+
+    </div> <!-- outerContainer -->
+    <div id="printContainer"></div>
+    
+    <!-- <div id="annot-text-tools">
+      <div class="annotButton" data-element="highlightToolButton">
+        <div class="annotIcon" style="color: rgb(255, 255, 255);"><svg
+            viewBox="0 0 24 24">
+            <path d="m0 0h24v24h-24z" fill="none"></path>
+            <path
+              d="m19 3c1.1 0 2 .9 2 2v14c0 1.1-.9 2-2 2h-14c-1.1 0-2-.9-2-2v-14c0-1.1.9-2 2-2zm-4.9471874 12.3412499.7890625 2.34375h2.4921875l-4.2578125-11.37499996h-2.171875l-4.23437502 11.37499996h2.4921875l.78125-2.34375zm-3.4765625-1.8984375 1.4140625-4.25781246 1.4296875 4.25781246z">
+            </path>
+          </svg></div>
+      </div>
+      <div class="annotButton" data-element="underlineToolButton">
+        <div class="annotIcon" style="color: rgb(255, 255, 255);"><svg viewBox="0 0 24 24">
+            <path d="m0 0h24v24h-24z" fill="none"></path>
+            <path
+              d="m14.3076923 14.3214286h-4.62417582l-.87912088 2.6785714h-2.8043956l4.7648352-13h2.443956l4.7912088 13h-2.8043956zm-3.9120879-2.1696429h3.2l-1.6087912-4.86607141zm-5.3956044 6.3482143h14v2h-14z">
+            </path>
+          </svg></div>
+      </div>
+      <div class="annotButton" data-element="strikeoutToolButton">
+        <div class="annotIcon" style="color: rgb(255, 255, 255);"><svg viewBox="0 0 24 24">
+            <path d="m0 0h24v24h-24z" fill="none"></path>
+            <path
+              d="m9.52134855 16-.71695295 3h-2.8043956l1.02103611-3zm-1.13893097-4 2.38241762-7h2.443956l2.3956044 7h-2.3895877l-1.2279947-3.71428571-1.2145741 3.71428571zm8.59089482 4 1.0266876 3h-2.8043956l-.7241225-3zm-11.9733124-3h14v2h-14z">
+            </path>
+          </svg></div>
+      </div>
+    </div> -->
+    <!-- <div id="annot-shapes" data-element="toolsOverlay">
+      <div class="annotButton" data-element="rectangleToolButton">
+        <div class="annotIcon"><svg viewBox="0 0 24 24">
+            <path d="m0 0h24v24h-24z" fill="none"></path>
+            <path d="m4 4h16v16h-16zm2 2v12h12v-12z"></path>
+          </svg></div>
+      </div>
+      <div class="annotButton" data-element="ellipseToolButton">
+        <div class="annotIcon" style="color: rgb(246, 154, 0);"><svg viewBox="0 0 24 24">
+            <path d="m0 0h24v24h-24z" fill="none"></path>
+            <path
+              d="m12 21c-4.97056275 0-9-4.0294373-9-9 0-4.97056275 4.02943725-9 9-9 4.9705627 0 9 4.02943725 9 9 0 4.9705627-4.0294373 9-9 9zm0-2c3.8659932 0 7-3.1340068 7-7 0-3.86599325-3.1340068-7-7-7-3.86599325 0-7 3.13400675-7 7 0 3.8659932 3.13400675 7 7 7z">
+            </path>
+          </svg></div>
+      </div>
+      <div class="annotButton" data-element="lineToolButton">
+        <div class="annotIcon"><svg viewBox="0 0 24 24">
+            <path d="m0 0h24v24h-24z" fill="none"></path>
+            <path d="m2 11h20v2h-20z" transform="matrix(.70710678 -.70710678 .70710678 .70710678 -4.970563 12)"></path>
+          </svg></div>
+      </div>
+      <div class="annotButton" data-element="arrowToolButton">
+        <div class="annotIcon"><svg viewBox="0 0 24 24">
+            <path d="m0 0h24v24h-24z" fill="none"></path>
+            <path
+              d="m16.9739609 5.6099999h-2.5857864v-2h4 2v6h-2v-2.58578644l-13.36396104 13.36396104-1.41421356-1.4142136z">
+            </path>
+          </svg></div>
+      </div>
+    </div> -->
+  </body>
+</html>
+
