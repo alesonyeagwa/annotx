@@ -16,15 +16,6 @@ if (!String.prototype.format) {
 
 
 var init = function () {
-    var AnnotationEvents = {
-        OBJECTADDED: 'objectAdded',
-        OBJECTMODIFIED: 'objectModified',
-        OBJECTREMOVED: 'objectRemoved',
-        COMMENTEDITED: 'commentEdited',
-        REPLYADDED: 'replyAdded',
-        REPLYEDITED: 'replyEdited',
-        REPLYREMOVED: 'replyRemoved'
-    }
     var CursorModes = {
         DEFAULT: 'default',
         NORMAL: 'mormal',
@@ -65,10 +56,9 @@ var init = function () {
             strokeWidth: 0
         },
         LINE: {
-            stroke: 'black',
+            fill: 'black',
             opacity: 1,
-            icon: '',
-            strokeWidth: 2
+            icon: ''
         },
         HIGHLIGHT: {
             fill: '#fc3',
@@ -95,9 +85,9 @@ var init = function () {
             icon: ''
         },
         ARROW: {
-            stroke: 'green',
+            fill: 'green',
             opacity: 1,
-            strokeWidth: 2,
+            strokeWidth: 1,
             icon: ''
         },
         INK: {
@@ -167,13 +157,7 @@ var init = function () {
     var addedCurrentSignature = false;
     var deleteAnnotationButton = null;
 
-    var annotData = {author: {id: '0', name:'Guest'}, docId: '0', annotations: []};
-    if(gup('data')){
-        annotData = JSON.parse(atob(gup('data')));
-    }
-    var author = annotData && annotData.author ? annotData.author : {id: '0', name: 'Guest'};
-
-    
+    var author = {id: '0', name: 'Guest'};
 
     //var pageRotationAngle = 0;
 
@@ -270,7 +254,7 @@ var init = function () {
                 var orientation =  lHeight > lWidth ? 'portrait':'landscape';
                 
                 var ratio = [lWidth/findCanv.canv.width, lHeight/findCanv.canv.height];
-                //console.log( "ratios:", ratio );
+                console.log( "ratios:", ratio );
                 scaleMultiplier = orientation == 'portrait' ? ratio[0] : ratio[1];
 
                 var rotated = false;
@@ -278,7 +262,7 @@ var init = function () {
                     //page was rotated, no need to scale
                     rotated = true;
                     scaleMultiplier = 1;
-                    //console.log('Rotate Angle: ' + PDFViewerApplication.pdfViewer.pagesRotation);
+                    console.log('Rotate Angle: ' + PDFViewerApplication.pdfViewer.pagesRotation);
                     var _angle = PDFViewerApplication.pdfViewer.pagesRotation;
                     if(_angle != currentPagesRotationAngle){
                         lastPagesRotationAngle = currentPagesRotationAngle;
@@ -301,8 +285,8 @@ var init = function () {
                 findCanv.canv.freeDrawingBrush.width = AnnotationsConfig.INK.strokeWidth;
 
                 degrees = PDFViewerApplication.pdfViewer.pagesRotation;
-                //console.log("cwid: " + findCanv.canv.getWidth());
-                //console.log("lwidth "+ lWidth);
+                console.log("cwid: " + findCanv.canv.getWidth());
+                console.log("lwidth "+ lWidth);
                 let radians = fabric.util.degreesToRadians(degrees)
 
                 var cWidth = findCanv.canv.getWidth();
@@ -435,7 +419,7 @@ var init = function () {
 
         canv.on({
             'mouse:down': function (e) {
-                //console.log("down");
+                console.log("down");
                 canvMouseDown = true;
                 fabClearSelect();
                 //canv.remove(fabSelectorGroup);
@@ -476,18 +460,17 @@ var init = function () {
                         case AnnotationTypes.LINE:
                             var points = [e.pointer.x, e.pointer.y, e.pointer.x, e.pointer.y];
                             currentPlainLineDraw = new fabric.Line(points, {
-                                strokeWidth: AnnotationsConfig.LINE.strokeWidth,
-                                fill: AnnotationsConfig.LINE.stroke,
-                                stroke: AnnotationsConfig.LINE.stroke,
-                                originX: 'left',
+                                strokeWidth: 2,
+                                fill: AnnotationsConfig.LINE.fill,
+                                stroke: AnnotationsConfig.LINE.fill,
+                                originX: 'center',
                                 originY: 'center',
                                 id: 'line',
                                 type: 'line',
                                 lockScalingX: true,
                                 lockScalingY: true,
                                 hasControls: false,
-                                hasBorders: false,
-                                padding: 6
+                                hasBorders: false
                             });
                             canv.add(currentPlainLineDraw);
                             break;
@@ -495,8 +478,8 @@ var init = function () {
                             var points = [e.pointer.x, e.pointer.y, e.pointer.x, e.pointer.y];
                             currentLineDraw = new fabric.Line(points, {
                                 strokeWidth: 2,
-                                fill: AnnotationsConfig.ARROW.stroke,
-                                stroke: AnnotationsConfig.ARROW.stroke,
+                                fill: AnnotationsConfig.ARROW.fill,
+                                stroke: AnnotationsConfig.ARROW.fill,
                                 originX: 'center',
                                 originY: 'center',
                                 id: 'arrow_line',
@@ -513,14 +496,13 @@ var init = function () {
                                 top: currentLineDraw.get('y1') + arrowDY,
                                 originX: 'center',
                                 originY: 'center',
-                                //lockScalingX: true,
-                                //lockScalingY: true,
+                                lockScalingX: true,
                                 selectable: false,
                                 pointType: 'arrow_start',
                                 angle: -45,
                                 width: 10,
                                 height: 10,
-                                fill: AnnotationsConfig.ARROW.stroke,
+                                fill: AnnotationsConfig.ARROW.fill,
                                 id: 'arrow_triangle'
                             });
                             canv.add(currentLineDraw);
@@ -611,7 +593,7 @@ var init = function () {
                 }
             },
             'mouse:up': function (e) {
-                //console.log("up");
+                console.log("up");
                 deselectOherActiveObjects();
                 canvMouseDown = false;
                 fabCanvasTextMouseDown = false;
@@ -652,39 +634,30 @@ var init = function () {
                             //     y2: e.pointer.y
                             // });
                             if (dx > 0 || dy > 0) {
-                                currentPlainLineDraw.clone((clone) => {
-                                    // var points = [drawStartPoint.x, drawStartPoint.y, e.pointer.x, e.pointer.y];
-                                    // // var x1 = currentPlainLineDraw.x1, x2 = currentPlainLineDraw.x2, y1 = currentPlainLineDraw.y1, y2 = currentPlainLineDraw.y2;
-                                    // // var points = [drawStartPoint.x, drawStartPoint.y, x1 + distance, drawStartPoint.y];
-                                    // var clone = new fabric.Line(points, {
-                                    //     strokeWidth: 2,
-                                    //     fill: AnnotationsConfig.LINE.fill,
-                                    //     stroke: AnnotationsConfig.LINE.fill,
-                                    //     //hasControls: false,
-                                    //     //hasBorders: false, 
-                                    //     originX: 'left', 
-                                    //     originY: 'center',
-                                    // })
+                                //currentPlainLineDraw.clone((clone) => {
+                                    var points = [drawStartPoint.x, drawStartPoint.y, e.pointer.x, e.pointer.y];
+                                    // var x1 = currentPlainLineDraw.x1, x2 = currentPlainLineDraw.x2, y1 = currentPlainLineDraw.y1, y2 = currentPlainLineDraw.y2;
+                                    // var points = [drawStartPoint.x, drawStartPoint.y, x1 + distance, drawStartPoint.y];
+                                    var clone = new fabric.Line(points, {
+                                        strokeWidth: 2,
+                                        fill: AnnotationsConfig.LINE.fill,
+                                        stroke: AnnotationsConfig.LINE.fill,
+                                        //hasControls: false,
+                                        //hasBorders: false, 
+                                        originX: 'left', 
+                                        originY: 'center',
+                                    })
                                     canv.remove(currentPlainLineDraw);
                                     //clone.hasBorders = clone.hasControls = false;
                                     //clone.noControls = true;
-                                    //clone.hasSecondaryPivot = true;
-                                    clone.rotateable = true;
+                                    clone.hasSecondaryPivot = true;
                                     confClone(clone);
-                                    //confPivots(clone);
+                                    confPivots(clone);
                                     clone.set({
-                                        lockScalingY: true,
-                                        originX: 'left', 
-                                        originY: 'center',
-                                        padding: 6
+                                        lockScalingX: true,
+                                        lockScalingY: true
                                     })
-                                    clone.setControlVisible('mt', false);
-                                    clone.setControlVisible('mb', false);
-                                    clone.setControlVisible('tl', false);
-                                    clone.setControlVisible('tr', false);
-                                    clone.setControlVisible('bl', false);
-                                    clone.setControlVisible('br', false);
-                                })
+                                //})
                             } else {
                                 canv.remove(currentPlainLineDraw);
                             }
@@ -715,39 +688,11 @@ var init = function () {
                                     originX: 'left',
                                     originY: 'center',
                                     angle: mainAngle,
-                                    lockScalingY: true,
-                                    padding: 6,
-                                    strokeWidth: AnnotationsConfig.ARROW.strokeWidth,
-                                    stroke: AnnotationsConfig.ARROW.stroke
+                                    lockScalingY: true
                                 });
                                 canv.remove(currentLineDraw);
                                 canv.remove(currentTriangleDraw);
                                 confClone(group);
-                                group.rotateable = true;
-                                group.setControlsVisibility({
-                                    mt: false,
-                                    mb: false,
-                                    tl: false,
-                                    tr: false,
-                                    bl: false,
-                                    br: false
-                                });
-                                group.on({
-                                    'scaling' : function(obj){
-                                        var triangle = obj.target.item(1), _group = obj.target;
-                                        //var _scaleX = _group.width / (_group.width * _group.scaleX);
-                                        //var _scaleY = _group.height / (_group.height * _group.scaleY);
-                                        var _scaleX = triangle.get('width') / _group.getScaledWidth();
-                                        var _scaleY = triangle.get('height') / _group.getScaledHeight();
-                                        console.log(_scaleX);
-                                        //triangle.set('scaleX', _scaleX);
-                                        //triangle.set('scaleY', _scaleY);
-                                        //group.item(1).set('scaleY', group.item(1).height/group.height);
-                                        //group.item(1).width = 10;
-                                        triangle.setCoords();
-                                        console.log(obj)
-                                    }
-                                })
                             } else {
                                 canv.remove(currentLineDraw);
                                 canv.remove(currentTriangleDraw);
@@ -803,21 +748,10 @@ var init = function () {
                     if (canvMouseDown) {
                         switch (selectedAnnotationType) {
                             case AnnotationTypes.RECT:
-                                if(e.pointer.x < drawStartPoint.x){
-                                    currentRectDraw.set({
-                                        left: e.pointer.x
-                                    })
-                                }
-                                if(e.pointer.y < drawStartPoint.y){
-                                    currentRectDraw.set({
-                                        top: e.pointer.y
-                                    })
-                                }
                                 currentRectDraw.set({
                                     width: Math.abs(drawStartPoint.x - e.pointer.x),
                                     height: Math.abs(drawStartPoint.y - e.pointer.y)
                                 })
-                                //console.log(currentRectDraw);
                                 break;
                             case AnnotationTypes.ELLIPSE:
                                 var rx = Math.abs(drawStartPoint.x - e.pointer.x) / 2;
@@ -827,16 +761,6 @@ var init = function () {
                                 }
                                 if (ry > currentCircleDraw.strokeWidth) {
                                     ry -= currentCircleDraw.strokeWidth / 2;
-                                }
-                                if(e.pointer.x < drawStartPoint.x){
-                                    currentCircleDraw.set({
-                                        left: e.pointer.x
-                                    })
-                                }
-                                if(e.pointer.y < drawStartPoint.y){
-                                    currentCircleDraw.set({
-                                        top: e.pointer.y
-                                    })
                                 }
                                 currentCircleDraw.set({
                                     rx: rx,
@@ -989,7 +913,6 @@ var init = function () {
                 //console.log(e);
                 canvObjMoving = false;
                 //e.target.hoverCursor = CursorModes.POINTER;
-                raiseEvent(AnnotationEvents.OBJECTMODIFIED, e.target);
             },
             'object:scaling': function (e) {
                 //console.log(e);
@@ -1002,7 +925,6 @@ var init = function () {
                 canvObjScaling = false;
 
                 restrictObjectBounds(e.target);
-                raiseEvent(AnnotationEvents.OBJECTMODIFIED, e.target);
             },
             'object:rotating': function (e) {
                 //console.log(e);
@@ -1011,7 +933,6 @@ var init = function () {
             'object:rotated': function (e) {
                 //console.log(e);
                 canvObjRotating = false;
-                raiseEvent(AnnotationEvents.OBJECTMODIFIED, e.target);
             }
         })
 
@@ -1058,18 +979,6 @@ var init = function () {
             initFabricText(text);
             canv.add(text);
             //groupText.add(text);
-        }
-
-        if(annotData && annotData.annotations){
-            annotData.annotations.forEach((annot) => {
-                if(annot.pageNum == pageNumber){
-                    var obj = new fabric.Rect(annot)
-                    canv.add(obj);
-                    obj.setCoords();
-                    confAnnotation(annot);
-                    canv.requestRenderAll();
-                }
-            })
         }
         //groupText.set('ty', 'group-text');
         //canv.add(groupText);
@@ -1189,9 +1098,6 @@ var init = function () {
                         var line = e.target;
                         var p1 = e.target.pivot1;
                         var p2 = e.target.pivot2;
-                        console.log('x1: '+ line.x1)
-                        line.setCoords();
-                        console.log('x1: '+ line.x1)
                         if(p1 && p2){
                             //pivot1.set({left: obj.x1, top: obj.y1 })
                             pivot1.left = line.x1;
@@ -1215,21 +1121,16 @@ var init = function () {
         function confClone(clone, add = true, ink = false) {
             clone.hoverCursor = CursorModes.POINTER;
             if(add){
-                var stateClone = JSON.parse(JSON.stringify(clone))
-                clone.uuid = stateClone.uuid = generateUUID();
-                clone.atype = stateClone.atype = selectedAnnotationType;
-                clone.docId = stateClone.docId = annotData.docId;
-                clone.pageNum = stateClone.pageNum = pageNumber;
+                clone.uuid = generateUUID();
+                clone.atype = selectedAnnotationType;
                 var _author = {id: author.id == '' ? '0' : author.id, name: author.name == '' ? 'Guest' : author.name}
-                clone.author = stateClone.author = _author;
-                clone.time = stateClone.time = moment().toString();
+                clone.author = _author;
+                clone.time = moment().toString();
                 if(!ink){
                     canv.add(clone);
                 }
                 confAnnotation(clone);
-                //Object.assign(stateClone, clone)
-                console.log(JSON.stringify(stateClone));
-                raiseEvent(AnnotationEvents.OBJECTADDED, clone);
+                console.log(clone);
             }
             setObjectCorners(clone);
             canv.requestRenderAll();
@@ -1252,7 +1153,253 @@ var init = function () {
         //     }
         // }); 
 
-        
+        function confAnnotation(annot){
+            
+            var annotPage = document.querySelector("[annotv-page-id='"+ pageNumber +"']");
+            var foundPage = pageAnnotations.find((ant) => {
+                return ant.pageNumber == pageNumber;
+            })
+
+            var container = '<div class="title"> <div class="annot-info"> <span class="icon">{0}</span> <span class="author">{1}</span> </div> <div class="actions"> <div class="edit-annot mAnnotIcon"> <svg viewBox="0 0 24 24" height="24" width="24"> <path d="m 17.038835,2.26301 4.695331,4.69572 M 1.043407,20.86952 3.1302208,22.9565 M 2.0868139,17.2173 3.1302208,18.26079 H 5.738738 v 2.60873 l 1.0434069,1.04349 M 17.82139,6.17611 5.738738,18.26079 M 15.473724,3.82825 18.693678,0.60803 a 2.0941176,2.0942888 0 0 1 2.950755,0 l 1.744576,1.74472 a 2.0868138,2.0869844 0 0 1 0,2.951 L 20.169055,8.52396 M 6e-8,24 2.0868139,17.2173 15.473724,3.82825 20.169055,8.52396 6.7821449,21.91301 Z" style="stroke-width:1.04344952" /> </svg> </div> <div class="rem-annot mAnnotIcon"> <svg viewBox="0 0 24 24" width="24" height="24"> <path d="M 3.5999997,0 -1e-7,3.60002 8.3999997,12 -1e-7,20.39998 3.5999997,24 12,15.59998 20.4,24 24,20.39998 15.6,12 24,3.60002 20.4,0 12,8.40001 Z"/> </svg> </div> </div> </div> <div class="time">{2}</div> <div class="comment-container"> <div class="comment-view"> <div class="comment"> {3} </div> </div> <div class="comment-cont hidden"> <div class="comment-input"> <div class="toolbarField ac-input" placeholder="Comment" contenteditable></div> </div> <div class="ac-actions hidden"> <button class="overlayButton comment-save">Save</button> <button class="overlayButton comment-cancel">Cancel</button> </div> </div> </div> <div class="replies hidden"> </div> <div class="new-reply hidden"> <div class="comment-input"> <div class="toolbarField ac-input" placeholder="Reply" contenteditable></div> </div> <div class="ac-actions hidden"> <button class="overlayButton new-reply-save">Reply</button> <button class="overlayButton new-reply-cancel">Cancel</button> </div> </div>';
+            var cont = document.createElement('div');
+            cont.classList = ['annotation-cont'];
+            cont.tabIndex = "-1";
+            cont.innerHTML = container.format(AnnotationsConfig[annot.atype.toUpperCase()].icon, annot.author.name, moment(annot.time).format('MMM Do, YYYY H:mma'), annot.comment ? annot.comment : '');
+
+            var replies = cont.querySelector('.replies');
+            var newReply = cont.querySelector('.new-reply');
+            var newReplyActions = newReply.querySelector('.reply-actions');
+            var comment = cont.querySelector('.comment-container .comment');
+            var btnSaveComment = cont.querySelector('.comment-container .comment-save');
+            var btnCancelComment = cont.querySelector('.comment-container .comment-cancel');
+            var btnSaveNewReply = cont.querySelector('.new-reply .new-reply-save');
+            var btnCancelNewReply = cont.querySelector('.new-reply .new-reply-cancel');
+            var commentInput = cont.querySelector('.comment-container .comment-input .ac-input');
+            var commentCont = cont.querySelector('.comment-container .comment-cont');
+            var newReplyInput = cont.querySelector('.new-reply .comment-input .ac-input');
+            var editComment = cont.querySelector('.edit-annot');
+            var removeComment = cont.querySelector('.rem-annot');
+
+            var focusEvent = new Event('focus');
+
+            function confReply(r){
+                var replyContainer = '<div class="reply-view"> <div class="title"> <div class="annot-info"> <div class="author"> {0} </div> </div> <div class="actions"> <div class="edit-reply mAnnotIcon"> <svg viewBox="0 0 24 24" height="24" width="24"> <path d="m 17.038835,2.26301 4.695331,4.69572 M 1.043407,20.86952 3.1302208,22.9565 M 2.0868139,17.2173 3.1302208,18.26079 H 5.738738 v 2.60873 l 1.0434069,1.04349 M 17.82139,6.17611 5.738738,18.26079 M 15.473724,3.82825 18.693678,0.60803 a 2.0941176,2.0942888 0 0 1 2.950755,0 l 1.744576,1.74472 a 2.0868138,2.0869844 0 0 1 0,2.951 L 20.169055,8.52396 M 6e-8,24 2.0868139,17.2173 15.473724,3.82825 20.169055,8.52396 6.7821449,21.91301 Z" style="stroke-width:1.04344952"></path> </svg> </div> <div class="rem-reply mAnnotIcon"> <svg viewBox="0 0 24 24" width="24" height="24"> <path d="M 3.5999997,0 -1e-7,3.60002 8.3999997,12 -1e-7,20.39998 3.5999997,24 12,15.59998 20.4,24 24,20.39998 15.6,12 24,3.60002 20.4,0 12,8.40001 Z"></path> </svg> </div> </div> </div>  <div class="time">{1}</div> <div class="reply"> {2} </div> </div> <div class="reply-input hidden"> <div class="comment-input"><div class="toolbarField ac-input" placeholder="Reply" contenteditable>{2}</div> </div> <div class="ac-actions hidden"> <button class="overlayButton reply-save">Save</button> <button class="overlayButton reply-cancel">Cancel</button> </div> </div> ';
+                var rCont = document.createElement('div');
+                rCont.classList.add('reply-cont');
+                rCont.innerHTML = replyContainer.format(r.author.name, moment(r.time).format('MMM Do, YYYY H:mma'), r.comment);
+                var editReply = rCont.querySelector('.edit-reply');
+                var saveReply = rCont.querySelector('.reply-save');
+                var removeReply = rCont.querySelector('.rem-reply');
+                var replyInputDiv = rCont.querySelector('.reply-input');
+                var replyInput = rCont.querySelector('.reply-input .ac-input');
+                var reply = rCont.querySelector('.reply');
+
+                replies.prepend(rCont);
+
+                removeReply.addEventListener('click', function(){
+                    annot.replies = annot.replies.filter((re) =>{
+                        return re != r;
+                    });
+                    rCont.remove();
+                });
+                editReply.addEventListener('click', function(){
+                    reply.classList.add('hidden')
+                    replyInputDiv.classList.remove('hidden');
+                    commentInput.innerHTML = comment.innerHTML;
+                })
+
+                saveReply.addEventListener('click', function(e){
+                    if(replyInput.innerHTML.trim() != ''){
+                        cont.dispatchEvent(focusEvent);
+                        r.comment = reply.innerHTML = replyInput.innerHTML;
+                        reply.classList.remove('hidden');
+                        replyInputDiv.classList.add('hidden');
+                        
+                    }
+                })
+                confCommentInput(replyInput);
+            }
+
+            function confCommentInput(ci){
+                var placeHolder = document.createElement('span');
+                placeHolder.classList = ['placeholder'];
+                placeHolder.innerHTML = ci.getAttribute('placeholder');
+                placeHolder.addEventListener('click', function(e){
+                    e.stopImmediatePropagation();
+                    ci.focus();
+                })
+                if(ci.innerHTML.trim() == ''){
+                    ci.parentNode.prepend(placeHolder);
+                }
+                ci.addEventListener('input', function(){
+                    if(ci.innerHTML.length > 0){
+                        placeHolder.classList.add('hidden');
+                    }else{
+                        placeHolder.classList.remove('hidden');
+                    }
+                })
+
+                ci.addEventListener('focus', function(e){
+                    e.stopImmediatePropagation();
+                    var actions = ci.parentNode.parentNode.querySelector('.ac-actions');
+                    if(actions){
+                        actions.classList.remove('hidden');
+                    }
+                })
+                ci.addEventListener('focusout', function(e){
+                    //e.stopImmediatePropagation();
+                    var actions = ci.parentNode.parentNode.querySelector('.ac-actions');
+                    if(actions){
+                        if(e.relatedTarget == cont){
+                            actions.classList.add('hidden');
+                        }
+                        //
+                    }
+                })
+            }
+
+            if(annot.replies){
+                annot.replies.forEach((r) => {
+                    confReply(r);
+                })
+            }
+
+
+            var commentInps = cont.querySelectorAll('.ac-input');
+            commentInps.forEach((ci) =>{
+                confCommentInput(ci);
+            });
+
+            btnSaveComment.addEventListener('click', function(){
+                if(commentInput.innerHTML.trim() != ''){
+                    annot.comment = comment.innerHTML = commentInput.innerHTML;
+                    comment.classList.remove('hidden')
+                    commentCont.classList.add('hidden');
+                }
+            })
+
+            btnSaveNewReply.addEventListener('click', function(){
+                if(newReplyInput.innerHTML.trim() != ''){
+                    annot.replies ? '' : annot.replies = [];
+                    if(annot.replies){
+                        var r = {author: annot.author, comment: newReplyInput.innerHTML, time: moment().toString()};
+                        annot.replies.push(r);
+                        confReply(r);
+                    }
+                    newReplyInput.innerHTML = '';
+                    newReply.querySelector('.placeholder').classList.remove('hidden');
+                }
+            })
+
+            btnCancelNewReply.addEventListener('click', function(e){
+                newReplyInput.innerHTML = '';
+                newReply.querySelector('.placeholder').classList.remove('hidden');
+                var actions = newReplyInput.parentNode.parentNode.querySelector('.ac-actions');
+                if(actions){
+                    actions.classList.add('hidden');
+                }
+            });
+
+
+            if(annotPage && foundPage){
+                foundPage.annots.unshift(annot);
+
+                annotPage.querySelector('.annotation-conts').prepend(cont)
+
+            }else{
+                var annots = [];
+                annots.push(annot);
+                pageAnnotations.push({pageNumber, annots})
+                pageAnnotations.sort((x,y) => {
+                    return x.pageNumber > y.pageNumber ? 1 : -1;
+                })
+
+                annotPage = document.createElement('section');
+                annotPage.setAttribute('annotv-page-id', pageNumber);
+                annotPage.classList = ['annot-page'];
+
+                var pager = document.createElement('div');
+                pager.classList = ['page-num'];
+                pager.innerHTML = "Page " + pageNumber;
+                annotPage.appendChild(pager);
+
+                var containers = document.createElement('div');
+                containers.classList = ['annotation-conts'];
+                
+                containers.appendChild(cont);
+                annotPage.appendChild(containers);
+
+                var annotView = document.getElementById('annotationsView');
+                annotView.appendChild(annotPage);
+
+                Array.prototype.slice.call(annotView.children)
+                    .map(function (x) { return annotView.removeChild(x); })
+                    .sort(function (x, y) { return x.getAttribute('annotv-page-id') > y.getAttribute('annotv-page-id') ? 1 : -1; })
+                    .forEach(function (x) { annotView.appendChild(x); });
+            }
+
+            //Remove button;
+            annot.removeButton = cont.querySelector('.rem-annot')
+            
+            cont.addEventListener('focusout', function(e){
+                if(e.relatedTarget != cont && !cont.contains(e.relatedTarget) && e.relatedTarget != null){
+                    newReply.classList.add('hidden');
+                    comment.classList.remove('hidden')
+                    commentCont.classList.add('hidden');
+                    replies.classList.add('hidden');
+                }else if(e.relatedTarget == null){
+                    cont.focus();
+                }
+            })
+
+            if(annot.author.id != author.id){
+                editComment.remove();
+                removeComment.remove();
+            }else{
+                cont.querySelector('.rem-annot').addEventListener('click', function(e){
+                    //console.log(annot.uuid);
+                    //e.stopImmediatePropagation();
+                    e.stopPropagation();
+                    removeAnnotation(annot, pageNumber);
+                    cont.remove();
+                    var pa = pageAnnotations.find((pa) => {
+                        return pa.pageNumber == pageNumber;
+                    })
+                    pa.annots = pa.annots.filter((paa) => {
+                        return paa.uuid != annot.uuid;
+                    })
+                    if(!annotPage.querySelector('.annotation-conts .annotation-cont')){
+                        annotPage.remove();
+                        pageAnnotations = pageAnnotations.filter((pa) => {
+                            return pa.pageNumber != pageNumber;
+                        })
+                    }
+                })
+    
+                cont.querySelector('.edit-annot').addEventListener('click', function(){
+                    comment.classList.add('hidden')
+                    commentCont.classList.remove('hidden');
+                    commentInput.innerHTML = comment.innerHTML;
+                })
+            }
+
+            cont.addEventListener('click', function(e){
+                deSelectActiveObjects();
+                canv.setActiveObject(annot);
+                newReply.classList.remove('hidden');
+                replies.classList.remove('hidden');
+            })
+            
+        }
+
+        function removeAnnotation(annot, pageNumber){
+            var pc = pageCanvs.find((pc) => {
+                return pc.pageNumber == pageNumber
+            })
+            if(pc){
+                pc.canv.remove(annot);
+            }
+        }
 
         function addTextAnnotations() {
             var txtAnnots = [];
@@ -1329,260 +1476,6 @@ var init = function () {
         return Math.atan2(fabricLine.height, fabricLine.width) * (180 / Math.PI);
     }
 
-    function confAnnotation(annot){
-
-        var pageNumber = annot.pageNum;
-            
-        var annotPage = document.querySelector("[annotv-page-id='"+ pageNumber +"']");
-        var foundPage = pageAnnotations.find((ant) => {
-            return ant.pageNumber == pageNumber;
-        })
-
-        var container = '<div class="title"> <div class="annot-info"> <span class="icon">{0}</span> <span class="author">{1}</span> </div> <div class="actions"> <div class="edit-annot mAnnotIcon"> <svg viewBox="0 0 24 24" height="24" width="24"> <path d="m 17.038835,2.26301 4.695331,4.69572 M 1.043407,20.86952 3.1302208,22.9565 M 2.0868139,17.2173 3.1302208,18.26079 H 5.738738 v 2.60873 l 1.0434069,1.04349 M 17.82139,6.17611 5.738738,18.26079 M 15.473724,3.82825 18.693678,0.60803 a 2.0941176,2.0942888 0 0 1 2.950755,0 l 1.744576,1.74472 a 2.0868138,2.0869844 0 0 1 0,2.951 L 20.169055,8.52396 M 6e-8,24 2.0868139,17.2173 15.473724,3.82825 20.169055,8.52396 6.7821449,21.91301 Z" style="stroke-width:1.04344952" /> </svg> </div> <div class="rem-annot mAnnotIcon"> <svg viewBox="0 0 24 24" width="24" height="24"> <path d="M 3.5999997,0 -1e-7,3.60002 8.3999997,12 -1e-7,20.39998 3.5999997,24 12,15.59998 20.4,24 24,20.39998 15.6,12 24,3.60002 20.4,0 12,8.40001 Z"/> </svg> </div> </div> </div> <div class="time">{2}</div> <div class="comment-container"> <div class="comment-view"> <div class="comment"> {3} </div> </div> <div class="comment-cont hidden"> <div class="comment-input"> <div class="toolbarField ac-input" placeholder="Comment" contenteditable></div> </div> <div class="ac-actions hidden"> <button class="overlayButton comment-save">Save</button> <button class="overlayButton comment-cancel">Cancel</button> </div> </div> </div> <div class="replies hidden"> </div> <div class="new-reply hidden"> <div class="comment-input"> <div class="toolbarField ac-input" placeholder="Reply" contenteditable></div> </div> <div class="ac-actions hidden"> <button class="overlayButton new-reply-save">Reply</button> <button class="overlayButton new-reply-cancel">Cancel</button> </div> </div>';
-        var cont = document.createElement('div');
-        cont.classList = ['annotation-cont'];
-        cont.tabIndex = "-1";
-        cont.innerHTML = container.format(AnnotationsConfig[annot.atype.toUpperCase()].icon, annot.author.name, moment(annot.time).format('MMM Do, YYYY H:mma'), annot.comment ? annot.comment : '');
-
-        var replies = cont.querySelector('.replies');
-        var newReply = cont.querySelector('.new-reply');
-        var newReplyActions = newReply.querySelector('.reply-actions');
-        var comment = cont.querySelector('.comment-container .comment');
-        var btnSaveComment = cont.querySelector('.comment-container .comment-save');
-        var btnCancelComment = cont.querySelector('.comment-container .comment-cancel');
-        var btnSaveNewReply = cont.querySelector('.new-reply .new-reply-save');
-        var btnCancelNewReply = cont.querySelector('.new-reply .new-reply-cancel');
-        var commentInput = cont.querySelector('.comment-container .comment-input .ac-input');
-        var commentCont = cont.querySelector('.comment-container .comment-cont');
-        var newReplyInput = cont.querySelector('.new-reply .comment-input .ac-input');
-        var editComment = cont.querySelector('.edit-annot');
-        var removeComment = cont.querySelector('.rem-annot');
-
-        var focusEvent = new Event('focus');
-
-        function confReply(r){
-            var replyContainer = '<div class="reply-view"> <div class="title"> <div class="annot-info"> <div class="author"> {0} </div> </div> <div class="actions"> <div class="edit-reply mAnnotIcon"> <svg viewBox="0 0 24 24" height="24" width="24"> <path d="m 17.038835,2.26301 4.695331,4.69572 M 1.043407,20.86952 3.1302208,22.9565 M 2.0868139,17.2173 3.1302208,18.26079 H 5.738738 v 2.60873 l 1.0434069,1.04349 M 17.82139,6.17611 5.738738,18.26079 M 15.473724,3.82825 18.693678,0.60803 a 2.0941176,2.0942888 0 0 1 2.950755,0 l 1.744576,1.74472 a 2.0868138,2.0869844 0 0 1 0,2.951 L 20.169055,8.52396 M 6e-8,24 2.0868139,17.2173 15.473724,3.82825 20.169055,8.52396 6.7821449,21.91301 Z" style="stroke-width:1.04344952"></path> </svg> </div> <div class="rem-reply mAnnotIcon"> <svg viewBox="0 0 24 24" width="24" height="24"> <path d="M 3.5999997,0 -1e-7,3.60002 8.3999997,12 -1e-7,20.39998 3.5999997,24 12,15.59998 20.4,24 24,20.39998 15.6,12 24,3.60002 20.4,0 12,8.40001 Z"></path> </svg> </div> </div> </div>  <div class="time">{1}</div> <div class="reply"> {2} </div> </div> <div class="reply-input hidden"> <div class="comment-input"><div class="toolbarField ac-input" placeholder="Reply" contenteditable>{2}</div> </div> <div class="ac-actions hidden"> <button class="overlayButton reply-save">Save</button> <button class="overlayButton reply-cancel">Cancel</button> </div> </div> ';
-            var rCont = document.createElement('div');
-            rCont.classList.add('reply-cont');
-            rCont.innerHTML = replyContainer.format(r.author.name, moment(r.time).format('MMM Do, YYYY H:mma'), r.comment);
-            var editReply = rCont.querySelector('.edit-reply');
-            var saveReply = rCont.querySelector('.reply-save');
-            var removeReply = rCont.querySelector('.rem-reply');
-            var replyInputDiv = rCont.querySelector('.reply-input');
-            var replyInput = rCont.querySelector('.reply-input .ac-input');
-            var reply = rCont.querySelector('.reply');
-
-            replies.prepend(rCont);
-
-            removeReply.addEventListener('click', function(){
-                annot.replies = annot.replies.filter((re) =>{
-                    return re != r;
-                });
-                rCont.remove();
-                raiseEvent(AnnotationEvents.REPLYREMOVED, {docId: annotData.docId, uuid: annot.uuid, reply: r});
-            });
-            editReply.addEventListener('click', function(){
-                reply.classList.add('hidden')
-                replyInputDiv.classList.remove('hidden');
-                commentInput.innerHTML = comment.innerHTML;
-            })
-
-            saveReply.addEventListener('click', function(e){
-                if(replyInput.innerHTML.trim() != ''){
-                    cont.dispatchEvent(focusEvent);
-                    r.comment = reply.innerHTML = replyInput.innerHTML;
-                    reply.classList.remove('hidden');
-                    replyInputDiv.classList.add('hidden');
-                    raiseEvent(AnnotationEvents.REPLYEDITED, {docId: annotData.docId, uuid: annot.uuid, reply: r});
-                    
-                }
-            })
-            confCommentInput(replyInput);
-        }
-
-        function confCommentInput(ci){
-            var placeHolder = document.createElement('span');
-            placeHolder.classList = ['placeholder'];
-            placeHolder.innerHTML = ci.getAttribute('placeholder');
-            placeHolder.addEventListener('click', function(e){
-                e.stopImmediatePropagation();
-                ci.focus();
-            })
-            if(ci.innerHTML.trim() == ''){
-                ci.parentNode.prepend(placeHolder);
-            }
-            ci.addEventListener('input', function(){
-                if(ci.innerHTML.length > 0){
-                    placeHolder.classList.add('hidden');
-                }else{
-                    placeHolder.classList.remove('hidden');
-                }
-            })
-
-            ci.addEventListener('focus', function(e){
-                e.stopImmediatePropagation();
-                var actions = ci.parentNode.parentNode.querySelector('.ac-actions');
-                if(actions){
-                    actions.classList.remove('hidden');
-                }
-            })
-            ci.addEventListener('focusout', function(e){
-                //e.stopImmediatePropagation();
-                var actions = ci.parentNode.parentNode.querySelector('.ac-actions');
-                if(actions){
-                    if(e.relatedTarget == cont){
-                        actions.classList.add('hidden');
-                    }
-                    //
-                }
-            })
-        }
-
-        if(annot.replies){
-            annot.replies.forEach((r) => {
-                confReply(r);
-            })
-        }
-
-
-        var commentInps = cont.querySelectorAll('.ac-input');
-        commentInps.forEach((ci) =>{
-            confCommentInput(ci);
-        });
-
-        btnSaveComment.addEventListener('click', function(){
-            if(commentInput.innerHTML.trim() != ''){
-                annot.comment = comment.innerHTML = commentInput.innerHTML;
-                comment.classList.remove('hidden')
-                commentCont.classList.add('hidden');
-            }
-        })
-
-        btnSaveNewReply.addEventListener('click', function(){
-            if(newReplyInput.innerHTML.trim() != ''){
-                annot.replies ? '' : annot.replies = [];
-                if(annot.replies){
-                    var r = {author: annot.author, comment: newReplyInput.innerHTML, time: moment().toString(), id: generateUUID()};
-                    annot.replies.push(r);
-                    confReply(r);
-                    raiseEvent(AnnotationEvents.REPLYADDED, {docId: annotData.docId, uuid: annot.uuid, reply: r});
-                }
-                newReplyInput.innerHTML = '';
-                newReply.querySelector('.placeholder').classList.remove('hidden');
-            }
-        })
-
-        btnCancelNewReply.addEventListener('click', function(e){
-            newReplyInput.innerHTML = '';
-            newReply.querySelector('.placeholder').classList.remove('hidden');
-            var actions = newReplyInput.parentNode.parentNode.querySelector('.ac-actions');
-            if(actions){
-                actions.classList.add('hidden');
-            }
-        });
-
-
-        if(annotPage && foundPage){
-            foundPage.annots.unshift(annot);
-
-            annotPage.querySelector('.annotation-conts').prepend(cont)
-
-        }else{
-            var annots = [];
-            annots.push(annot);
-            pageAnnotations.push({pageNumber, annots})
-            pageAnnotations.sort((x,y) => {
-                return x.pageNumber > y.pageNumber ? 1 : -1;
-            })
-
-            annotPage = document.createElement('section');
-            annotPage.setAttribute('annotv-page-id', pageNumber);
-            annotPage.classList = ['annot-page'];
-
-            var pager = document.createElement('div');
-            pager.classList = ['page-num'];
-            pager.innerHTML = "Page " + pageNumber;
-            annotPage.appendChild(pager);
-
-            var containers = document.createElement('div');
-            containers.classList = ['annotation-conts'];
-            
-            containers.appendChild(cont);
-            annotPage.appendChild(containers);
-
-            var annotView = document.getElementById('annotationsView');
-            annotView.appendChild(annotPage);
-
-            Array.prototype.slice.call(annotView.children)
-                .map(function (x) { return annotView.removeChild(x); })
-                .sort(function (x, y) { return x.getAttribute('annotv-page-id') > y.getAttribute('annotv-page-id') ? 1 : -1; })
-                .forEach(function (x) { annotView.appendChild(x); });
-        }
-
-        //Remove button;
-        annot.removeButton = cont.querySelector('.rem-annot')
-        
-        cont.addEventListener('focusout', function(e){
-            if(e.relatedTarget != cont && !cont.contains(e.relatedTarget) && e.relatedTarget != null){
-                newReply.classList.add('hidden');
-                comment.classList.remove('hidden')
-                commentCont.classList.add('hidden');
-                replies.classList.add('hidden');
-            }else if(e.relatedTarget == null){
-                cont.focus();
-            }
-        })
-
-        if(annot.author.id != author.id){
-            editComment.remove();
-            removeComment.remove();
-        }else{
-            cont.querySelector('.rem-annot').addEventListener('click', function(e){
-                //console.log(annot.uuid);
-                //e.stopImmediatePropagation();
-                e.stopPropagation();
-                removeAnnotation(annot, pageNumber);
-                cont.remove();
-                var pa = pageAnnotations.find((pa) => {
-                    return pa.pageNumber == pageNumber;
-                })
-                pa.annots = pa.annots.filter((paa) => {
-                    return paa.uuid != annot.uuid;
-                })
-                raiseEvent(AnnotationEvents.OBJECTREMOVED, annot);
-                if(!annotPage.querySelector('.annotation-conts .annotation-cont')){
-                    annotPage.remove();
-                    pageAnnotations = pageAnnotations.filter((pa) => {
-                        return pa.pageNumber != pageNumber;
-                    })
-                }
-            })
-
-            cont.querySelector('.edit-annot').addEventListener('click', function(){
-                comment.classList.add('hidden')
-                commentCont.classList.remove('hidden');
-                commentInput.innerHTML = comment.innerHTML;
-            })
-        }
-
-        cont.addEventListener('click', function(e){
-            deSelectActiveObjects();
-            annot.canvas.setActiveObject(annot);
-            newReply.classList.remove('hidden');
-            replies.classList.remove('hidden');
-        })
-        
-    }
-
-    function removeAnnotation(annot, pageNumber){
-        var pc = pageCanvs.find((pc) => {
-            return pc.pageNumber == pageNumber
-        })
-        if(pc){
-            pc.canv.remove(annot);
-        }
-    }
-
     function clearControls(object) {
         object.set({
             hasControls: false,
@@ -1604,7 +1497,7 @@ var init = function () {
                 cornerSize: 10,
                 transparentCorners: false,
                 cornerStyle: 'circle',
-                hasRotatingPoint: obj.get('rotateable'),
+                hasRotatingPoint: false,
             });
         }
     }
@@ -2180,11 +2073,9 @@ var init = function () {
         var signatureOverlay = document.getElementById('signatureOverlay');
         signatureOverlay.querySelector('#clear-sign').addEventListener('click', function(){
             signatureCanvas.getObjects().forEach((obj) => {
-                var c = obj.canvas
-                c.remove(obj);
+                signatureCanvas.remove(obj);
                 signatureCanvas.requestRenderAll();
             });
-            signatureCanvas.clear();
             signatureCanvas.renderAll();
         })
         signatureOverlay.querySelector('#sign-submit').addEventListener('click', function(){
@@ -2235,53 +2126,33 @@ var init = function () {
                     })
                 }
                 canvActiveObject.canvas.requestRenderAll();
-                raiseEvent(AnnotationEvents.OBJECTMODIFIED, canvActiveObject);
             }
         });
         annotBorderColor.on('change', function(color){
             if(canvActiveObject && AnnotationsConfig[canvActiveObject.atype.toUpperCase()]['stroke'] != null){
                 canvActiveObject.set('stroke', color.rgb);
                 AnnotationsConfig[canvActiveObject.atype.toUpperCase()].stroke = color.rgb;
-                if(canvActiveObject.atype == AnnotationTypes.HIGHLIGHT || canvActiveObject.atype == AnnotationTypes.STRIKE || canvActiveObject.atype == AnnotationTypes.UNDERLINEE || canvActiveObject.atype == AnnotationTypes.SIGNATURE || canvActiveObject.atype == AnnotationTypes.ARROW){
+                if(canvActiveObject.atype == AnnotationTypes.HIGHLIGHT || canvActiveObject.atype == AnnotationTypes.STRIKE || canvActiveObject.atype == AnnotationTypes.UNDERLINEE || canvActiveObject.atype == AnnotationTypes.SIGNATURE){
                     canvActiveObject.getObjects().forEach((obj) =>{
                         obj.set('stroke', color.rgb);
-                        if(obj.id == 'arrow_triangle'){
-                            obj.set('fill', color.rgb);
-                        }
                     })
                 }
                 canvActiveObject.canvas.requestRenderAll();
-                raiseEvent(AnnotationEvents.OBJECTMODIFIED, canvActiveObject);
             }
         });
-        
-        strokeProp.addEventListener('change', function(){
-            if(canvActiveObject){
-                raiseEvent(AnnotationEvents.OBJECTMODIFIED, canvActiveObject);
-            }
-        })
 
         strokeProp.addEventListener('input', function(){
             if(canvActiveObject && AnnotationsConfig[canvActiveObject.atype.toUpperCase()]['strokeWidth'] != null){
                 canvActiveObject.set('strokeWidth', parseInt(strokeProp.value));
-                if(canvActiveObject.atype == AnnotationTypes.ARROW){
-                    canvActiveObject.getObjects().forEach((obj) =>{
-                        obj.set('strokeWidth', parseInt(strokeProp.value));
-                    })
-                }
+                AnnotationsConfig[canvActiveObject.atype.toUpperCase()].strokeWidth = parseInt(strokeProp.value);
+                canvActiveObject.canvas.requestRenderAll();
                 if( canvActiveObject.atype == AnnotationTypes.SIGNATURE){
                     canvActiveObject.getObjects().forEach((obj) =>{
                         obj.set('strokeWidth', parseInt(strokeProp.value));
                     })
                 }
-                AnnotationsConfig[canvActiveObject.atype.toUpperCase()].strokeWidth = parseInt(strokeProp.value);
-                canvActiveObject.canvas.requestRenderAll();
                 canvActiveObject.setCoords();
-            }
-        })
-        opacityProp.addEventListener('change', function(){
-            if(canvActiveObject){
-                raiseEvent(AnnotationEvents.OBJECTMODIFIED, canvActiveObject);
+
             }
         })
         opacityProp.addEventListener('input', function(){
@@ -2294,11 +2165,6 @@ var init = function () {
                     })
                 }
                 canvActiveObject.canvas.requestRenderAll();
-            }
-        })
-        fontSizeProp.addEventListener('change', function(){
-            if(canvActiveObject){
-                raiseEvent(AnnotationEvents.OBJECTMODIFIED, canvActiveObject);
             }
         })
         fontSizeProp.addEventListener('input', function(){
@@ -2475,7 +2341,7 @@ var init = function () {
                 setTimeout(() => {
                     var popup = button.querySelector('#' + button.getAttribute('data-ref'))
                     if (popup) {
-                        //popup.classList.contains('show') || popShown ? popup.classList.remove('show') : popup.classList.add('show');
+                        popup.classList.contains('show') || popShown ? popup.classList.remove('show') : popup.classList.add('show');
                         var selectedPopupAnnot = button.querySelector('.annotButton.active');
                         if (selectedPopupAnnot) {
                             mode = annotBtnModes[selectedPopupAnnot.getAttribute('data-element')];
@@ -2574,24 +2440,10 @@ var init = function () {
         })
     }
 
-    function gup(name, url) {
-        if (!url) url = location.href;
-        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-        var regexS = "[\\?&]" + name + "=([^&#]*)";
-        var regex = new RegExp(regexS);
-        var results = regex.exec(url);
-        return results == null ? null : results[1];
+    function _dispatchEvent(eventname, eventdata) {
+        var event = document.createEvent('CustomEvent');
+        event.initCustomEvent(eventname, false, false, eventdata);
+        window.dispatchEvent(event);
     }
-
-    function raiseEvent(eventname, eventdata) {
-        if(self != top){
-            parent.postMessage({event: eventname, data: eventdata},"*");
-        }else{
-            var event = document.createEvent('CustomEvent');
-            event.initCustomEvent(eventname, false, false, eventdata);
-            window.dispatchEvent(event);
-        }
-    }
-    
 }();
 

@@ -148,7 +148,7 @@ function getViewerConfiguration() {
       zoomIn: document.getElementById('zoomIn'),
       zoomOut: document.getElementById('zoomOut'),
       viewFind: document.getElementById('viewFind'),
-      openFile: document.getElementById('openFile'),
+      //openFile: document.getElementById('openFile'),
       print: document.getElementById('print'),
       presentationModeButton: document.getElementById('presentationMode'),
       download: document.getElementById('download'),
@@ -159,7 +159,7 @@ function getViewerConfiguration() {
       toggleButton: document.getElementById('secondaryToolbarToggle'),
       toolbarButtonContainer: document.getElementById('secondaryToolbarButtonContainer'),
       presentationModeButton: document.getElementById('secondaryPresentationMode'),
-      openFileButton: document.getElementById('secondaryOpenFile'),
+      //openFileButton: document.getElementById('secondaryOpenFile'),
       printButton: document.getElementById('secondaryPrint'),
       downloadButton: document.getElementById('secondaryDownload'),
       viewBookmarkButton: document.getElementById('secondaryViewBookmark'),
@@ -2105,8 +2105,8 @@ function webViewerPresentationMode() {
 }
 
 function webViewerOpenFile() {
-  var openFileInputName = PDFViewerApplication.appConfig.openFileInputName;
-  document.getElementById(openFileInputName).click();
+  //var openFileInputName = PDFViewerApplication.appConfig.openFileInputName;
+  //document.getElementById(openFileInputName).click();
 }
 
 function webViewerPrint() {
@@ -2344,7 +2344,9 @@ function webViewerKeyDown(evt) {
   if (PDFViewerApplication.overlayManager.active) {
     return;
   }
-
+  if(evt.target && evt.target.tagName.toLowerCase() == 'div' && evt.target.getAttribute('contenteditable') != null){
+    return;
+  }
   var handled = false,
       ensureViewerFocused = false;
   var cmd = (evt.ctrlKey ? 1 : 0) | (evt.altKey ? 2 : 0) | (evt.shiftKey ? 4 : 0) | (evt.metaKey ? 8 : 0);
@@ -12650,11 +12652,13 @@ function () {
       element: options.presentationModeButton,
       eventName: 'presentationmode',
       close: true
-    }, {
-      element: options.openFileButton,
-      eventName: 'openfile',
-      close: true
-    }, {
+    }
+    // }, {
+    //   element: options.openFileButton,
+    //   eventName: 'openfile',
+    //   close: true
+    // }
+    , {
       element: options.printButton,
       eventName: 'print',
       close: true
@@ -13277,11 +13281,11 @@ function () {
           source: self
         });
       });
-      items.openFile.addEventListener('click', function () {
-        eventBus.dispatch('openfile', {
-          source: self
-        });
-      });
+      // items.openFile.addEventListener('click', function () {
+      //   eventBus.dispatch('openfile', {
+      //     source: self
+      //   });
+      // });
       items.print.addEventListener('click', function () {
         eventBus.dispatch('print', {
           source: self

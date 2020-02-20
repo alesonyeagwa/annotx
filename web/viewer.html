@@ -31,6 +31,7 @@ See https://github.com/adobe-type-tools/cmap-resources
 
     <link rel="stylesheet" href="viewer.css">
     <link rel="stylesheet" href="annotx.css">
+    <link rel="stylesheet" href="../css/tab-palette-picker-dark.min.css">
     <link rel="stylesheet" href="../css/color-picker-pro-dark.min.css">
 
 
@@ -45,6 +46,7 @@ See https://github.com/adobe-type-tools/cmap-resources
     <script src="viewer.js"></script>
     <script src="../fabric.min.js"></script>
     <script src="../libs/moment.min.js"></script>
+    <script src="../libs/tab-palette-picker.min.js"></script>
     <script src="../libs/color-picker-pro.min.js"></script>
     <script src="../viewer-helper.js"></script>
     <script src="../script.js"></script>
@@ -79,7 +81,7 @@ See https://github.com/adobe-type-tools/cmap-resources
           <div id="attachmentsView" class="hidden">
           </div>
           <div id="annotationsView" class="hidden">
-            <section annotv-page-id="1" class="annot-page" v-for="page in pageAnnotations">
+            <!-- <section annotv-page-id="1" class="annot-page" v-for="page in pageAnnotations">
               <div class="page-num">Page {{page.pageNumber}}</div>
               <div class="annotation-conts">
                 <div class="annotation-cont" v-for="annot in page.annots">
@@ -153,7 +155,7 @@ See https://github.com/adobe-type-tools/cmap-resources
                   </div>
                 </div>
               </div>
-            </section>
+            </section> -->
           </div>
         </div>
         <div id="sidebarResizer" class="hidden"></div>
@@ -197,15 +199,15 @@ See https://github.com/adobe-type-tools/cmap-resources
               <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
             </button>
 
-            <button id="secondaryOpenFile" class="secondaryToolbarButton openFile visibleLargeView" title="Open File" tabindex="52" data-l10n-id="open_file">
+            <!-- <button id="secondaryOpenFile" class="secondaryToolbarButton openFile visibleLargeView hidden" title="Open File" tabindex="52" data-l10n-id="open_file">
               <span data-l10n-id="open_file_label">Open</span>
-            </button>
+            </button> -->
 
             <button id="secondaryPrint" class="secondaryToolbarButton print visibleMediumView" title="Print" tabindex="53" data-l10n-id="print">
               <span data-l10n-id="print_label">Print</span>
             </button>
 
-            <button id="secondaryDownload" class="secondaryToolbarButton download visibleMediumView" title="Download" tabindex="54" data-l10n-id="download">
+            <button id="secondaryDownload" class="secondaryToolbarButton download visibleMediumView hidden" title="Download" tabindex="54" data-l10n-id="download">
               <span data-l10n-id="download_label">Download</span>
             </button>
 
@@ -306,9 +308,9 @@ See https://github.com/adobe-type-tools/cmap-resources
                   <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
                 </button>
 
-                <button id="openFile" class="toolbarButton openFile hiddenLargeView" title="Open File" tabindex="32" data-l10n-id="open_file">
+                <!-- <button id="openFile" class="toolbarButton openFile hiddenLargeView" title="Open File" tabindex="32" data-l10n-id="open_file">
                   <span data-l10n-id="open_file_label">Open</span>
-                </button>
+                </button> -->
 
                 <button id="print" class="toolbarButton print hiddenMediumView" title="Print" tabindex="33" data-l10n-id="print">
                   <span data-l10n-id="print_label">Print</span>
@@ -362,7 +364,7 @@ See https://github.com/adobe-type-tools/cmap-resources
                       <svg viewBox="0 0 24 24"><path d="m0 0h24v24h-24z" fill="none"></path><path d="m9.66172796 8.5226409 4.24264064-4.24264069 7.0710679 7.07106779-4.2426407 4.2426407c-.3905243.3905243-1.0236893.3905243-1.4142136 0l-5.65685424-5.65685424c-.3905243-.39052429-.3905243-1.02368927 0-1.41421356zm-.70710679 2.1213203 5.65685423 5.6568543-5.01218758 2.5060938c-.38498866.1924943-.84996012.1170398-1.15432038-.1873204l-1.80911966-1.8091197c-.30436026-.3043602-.37981474-.7693317-.18732041-1.1543204zm-2.82842712 7.0710679 1.41421356 1.4142135c-1.31993275 1.0370899-2.14489066 1.3906433-2.47487373 1.0606602-.32998308-.3299831.02357031-1.154941 1.06066017-2.4748737z"></path></svg>
                     </div>
                   </button>
-                  <button id="annotx-textTools" class="toolbarButton annot-popper" data-ref="annot-text-tools">
+                  <button id="annotx-textTools" class="toolbarButton annotx-popper" data-ref="annot-text-tools">
                     <div class="mAnnotIcon">
                       <svg
                         viewBox="0 0 24 24">
@@ -372,7 +374,7 @@ See https://github.com/adobe-type-tools/cmap-resources
                         </path>
                       </svg>
                     </div>
-                    <div id="annot-text-tools" class="annot-popup">
+                    <div id="annot-text-tools" class="annot-popup dropdown">
                       <div class="annotButton active" id="highlightToolButton" data-element="highlightToolButton">
                         <div class="annotIcon" ic-a-type="highlight"><svg
                             viewBox="0 0 24 24">
@@ -400,14 +402,14 @@ See https://github.com/adobe-type-tools/cmap-resources
                       </div>
                     </div>
                   </button>
-                  <button id="annotx-shapes" class="toolbarButton annot-popper" data-ref="annot-shapes">
+                  <button id="annotx-shapes" class="toolbarButton annotx-popper" data-ref="annot-shapes">
                       <div class="mAnnotIcon" >
                         <svg viewBox="0 0 24 24">
                           <path d="m0 0h24v24h-24z" fill="none"></path>
                           <path d="m4 4h16v16h-16zm2 2v12h12v-12z"></path>
                         </svg>
                       </div>
-                      <div id="annot-shapes" class="annot-popup" data-element="toolsOverlay">
+                      <div id="annot-shapes" class="annot-popup dropdown" data-element="toolsOverlay">
                         <div class="annotButton active" data-element="rectangleToolButton">
                           <div class="annotIcon" ic-a-type="rect">
                             <svg viewBox="0 0 24 24">
@@ -440,7 +442,7 @@ See https://github.com/adobe-type-tools/cmap-resources
                           </div>
                       </div>
                   </button>
-                  <button id="annotx-signature" class="toolbarButton" title="Signature">
+                  <button id="annotx-signature" class="toolbarButton no-tog" title="Signature">
                     <div class="mAnnotIcon" ic-a-type="signature">
                       <svg viewBox="0 0 24 24">
                         <path d="m 0,20.857246 h 24 v 1.142853 H 0 Z M 20.457143,14.114381 C 21.999999,12.171515 24,9.4858207 24,4.857261 24,4.514458 23.771414,4.285834 23.42857,4.285834 c -0.342841,0 -0.571427,0.228661 -0.571427,0.571427 0,3.8285472 -1.428574,6.114254 -2.857145,7.942827 -0.342841,-1.085707 -0.571427,-2.4 -0.571427,-3.9428405 0,-0.2857322 -0.228585,-0.5714267 -0.57143,-0.5714267 -0.285694,0 -0.571427,0.2286614 -0.571427,0.5714267 -0.05715,0.971414 -0.342841,2.0571205 -0.57143,2.1714135 -0.228586,0 -0.514284,-0.799974 -0.571427,-1.5999868 0,-0.2857322 -0.285694,-0.5142802 -0.57143,-0.5142802 C 16.285694,8.914394 16,9.0859845 16,9.4286742 c -0.171439,0.9714138 -0.628573,2.3428528 -1.142857,2.3428528 -0.228586,0 -0.342841,-0.05707 -0.399999,-0.17159 -0.171439,-0.171591 -0.228586,-0.571427 -0.228586,-0.914268 0,-0.228661 0.05715,-0.457133 0.05715,-0.6857193 0,-0.2857322 -0.228586,-0.5714267 -0.514284,-0.5714267 -0.285732,0 -0.571427,0.1715906 -0.628573,0.4571338 0,0.057071 -0.05715,0.2857322 -0.05715,0.6285732 -0.114293,0.971452 -0.457141,2.91428 -1.657141,2.91428 -0.399999,0 -0.628569,-0.114142 -0.800001,-0.399988 -0.285694,-0.457133 -0.285694,-1.199999 0,-1.885719 0,0 0,0 0,-0.05707 0.05715,-0.05707 0.05715,-0.17159 0.114293,-0.228661 0,0 0,0 0,0 0.457145,-0.9143056 0.971429,-1.4285859 1.828573,-1.4285859 0.342841,0 0.571426,-0.2286613 0.571426,-0.5714266 0,-0.3428031 -0.228585,-0.5714267 -0.571426,-0.5714267 -2.4,0 -3.0857156,2.3428532 -3.7714276,4.5714132 -0.8000012,2.742879 -1.5428559,4.571452 -3.6571421,4.571452 -2.9142875,0 -4.0000019,-3.771439 -4.0000019,-6.285732 0,-4.914292 2.6857167,-8.000011 5.142859,-8.000011 1.6571412,0 2.2857143,1.314293 2.3428569,1.371439 C 8.7428622,4.799925 9.0857107,4.91418 9.371424,4.799925 9.6571563,4.685784 9.7714265,4.342754 9.6571563,4.057059 9.6000103,3.942918 8.6857271,1.999901 6.2857275,1.999901 c -3.0857154,0 -6.285716161419,3.428597 -6.285716161419,9.142864 0,5.885706 3.371428761419,7.428585 5.142859061419,7.428585 2.9142836,0 3.8857127,-2.571439 4.6285712,-4.857146 0.3999984,0.51428 0.9714254,0.857121 1.6571414,0.857121 1.257142,0 2.000001,-0.914267 2.399999,-2.057121 0.285695,0.228662 0.628574,0.342803 1.028572,0.342803 0.800001,0 1.371428,-0.685719 1.714284,-1.371401 0.228586,0.399987 0.628573,0.685682 1.142857,0.685682 0.342879,0 0.628573,-0.171213 0.857144,-0.399988 0.171439,0.800013 0.399999,1.542841 0.57143,2.171414 -0.800001,1.028599 -1.428574,1.88572 -1.428574,2.914318 0,0.971414 0.742859,1.71428 1.714288,1.71428 1.028572,0 1.714284,-0.914305 1.714284,-1.71428 0,-0.742866 -0.285733,-1.542878 -0.62857,-2.457146 0,-0.114142 -0.05715,-0.171591 -0.05715,-0.285732 z m -1.028572,3.314304 c -0.400002,0 -0.57143,-0.285732 -0.57143,-0.571426 0,-0.514318 0.285732,-1.028598 0.742858,-1.657172 0.228586,0.68572 0.399999,1.2 0.399999,1.657172 0,0.171212 -0.171439,0.571426 -0.571427,0.571426 z"
@@ -475,14 +477,14 @@ See https://github.com/adobe-type-tools/cmap-resources
                 </div>
                 <div class="annotxSeperator"></div>
                 <div class="annotProps">
-                  <button id="annotx-fill" class="toolbarButton mAnnotIcon" title="Fill">
-                    <span class="cover"></span>
+                  <button id="annotx-fill" class="toolbarButton mAnnotIcon axp-btn" title="Fill" dtype="fill" disabled>
+                    <span class="axp-cover"></span>
                     <div class="" >
                       <svg viewBox="0 0 24 24"> <path d="M 8.6729081,3.5068 1.6353297,11.68672 C 0.51961608,13.00607 0.60544021,14.9411 1.806978,16.17249 l 4.806151,4.92554 c 1.2015378,1.23139 3.0896686,1.31934 4.37703,0.17591 l 7.981644,-7.2124 m 3.604613,0.7916 v 0 c -0.772417,0.79161 -1.973954,0.79161 -2.746372,0 L 8.6729081,3.5068 v 0 c 0.9440653,-0.96752 2.4888999,-0.96752 3.4329649,0 l 3.432965,3.51825 c 1.888131,1.93503 4.033734,3.51824 6.522634,4.57372 v 0 c 1.201537,0.61569 1.45901,2.28686 0.514944,3.25437 z m -2.91802,6.50876 c 0,0.96752 0.772417,1.75912 1.716483,1.75912 0.944065,0 1.716482,-0.7916 1.716482,-1.75912 0,-0.96752 -1.716482,-2.63868 -1.716482,-2.63868 0,0 -1.716483,1.67116 -1.716483,2.63868 z M 9.2736769,13.35789 c 0.6007689,0.61569 1.6306581,0.61569 2.2314271,0 0.600769,-0.61569 0.600769,-1.67117 0,-2.28686 -0.600769,-0.61569 -1.6306582,-0.61569 -2.2314271,0 C 5.239943,6.93709 2.9226916,2.45133 4.2100535,1.21994 4.7249983,0.69221 5.926536,0.78016 7.3855462,1.48381" /> </svg>                 
                     </div>
                   </button>
-                  <button id="annotx-border" class="toolbarButton mAnnotIcon" title="Border">
-                    <span class="cover"></span>
+                  <button id="annotx-border" class="toolbarButton mAnnotIcon axp-btn" title="Stroke Color" dtype="stroke" disabled>
+                    <span class="axp-cover"></span>
                     <div class="" >
                       <svg viewBox="0 0 24 24">
                         <path d="m0 0h24v24h-24z" fill="none"></path>
@@ -490,7 +492,7 @@ See https://github.com/adobe-type-tools/cmap-resources
                       </svg>
                     </div>
                   </button>
-                  <button id="annotx-stroke" class="toolbarButton mAnnotIcon annotx-popper" title="Stroke Width">
+                  <button id="annotx-stroke" class="toolbarButton mAnnotIcon annotx-popper" dtype="strokeWidth" title="Stroke Width" disabled>
                     <div class="" >
                       <svg viewBox="0 0 24 24">
                         <path d="m0 0h24v24h-24z" fill="none"></path>
@@ -498,10 +500,13 @@ See https://github.com/adobe-type-tools/cmap-resources
                       </svg>
                     </div>
                     <div class="dropdown ap-range">
-                      <input type="range" class="annotx-slider" min="0" max="20">
+                      <div class="range-cont">
+                        <input type="range" id="rg-stroke" class="annotx-slider" min="0" max="20" value="2">
+                        <span class="range-value" unit="pt"></span>
+                      </div>
                     </div>
                   </button>
-                  <button id="annotx-opacity" class="toolbarButton mAnnotIcon annotx-popper" title="Opacity">
+                  <button id="annotx-opacity" class="toolbarButton mAnnotIcon annotx-popper" dtype="opacity" title="Opacity" disabled>
                     <div class="" >
                       <svg viewBox="0 0 24 24">
                         <path d="M 17.66,8 12,2.35 6.34,8 C 4.78,9.56 4,11.64 4,13.64 c 0,2 0.78,4.11 2.34,5.67 1.56,1.56 3.61,2.35 5.66,2.35 2.05,0 4.1,-0.79 5.66,-2.35 C 19.22,17.75 20,15.64 20,13.64 20,11.64 19.22,9.56 17.66,8 Z M 6,14 C 6.01,12 6.62,10.73 7.76,9.6 L 12,5.27 16.24,9.65 C 17.38,10.77 17.99,12 18,14 Z"
@@ -509,7 +514,30 @@ See https://github.com/adobe-type-tools/cmap-resources
                       </svg>                          
                     </div>
                     <div class="dropdown ap-range">
-                      <input type="range" class="annotx-slider" min="0" max="100" value="100">
+                      <div class="range-cont">
+                        <input type="range" id="rg-opacity" class="annotx-slider" min="0" max="100" value="100">
+                        <span class="range-value" unit="%"></span>
+                      </div>
+                    </div>
+                  </button>
+                  <div class="annotxSeperator"></div>
+                  <button id="annotx-fontSize" class="toolbarButton mAnnotIcon stroked annotx-popper" dtype="fontSize" title="Font Size" disabled>
+                    <div class="" >
+                      <svg viewBox="0 0 24 24">
+                        <path d="M 23.476575,21.09644 H 0.5234249 m 2.5914847,-2.63704 -2.5914847,2.63704 2.5914847,2.63704 m 17.7701804,0 2.591485,-2.63704 L 20.88509,18.4594 M 2.7446975,13.56205 H 7.5574548 M 2.0042733,16.19908 4.9659701,7.53453 h 0.3702121 l 2.9616968,8.66455 m 4.072333,-5.27407 h 7.774454 m -9.625514,5.27407 5.553181,-15.82223 h 0.370212 l 5.553182,15.82223" />
+                      </svg>                          
+                    </div>
+                    <div class="dropdown ap-range">
+                      <div class="range-cont">
+                        <input type="range" id="rg-fontSize" class="annotx-slider" min="5" max="45" value="12">
+                        <span class="range-value" unit="pt"></span>
+                      </div>
+                    </div>
+                  </button>
+                  <div class="annotxSeperator"></div>
+                  <button id="annotx-delete" class="toolbarButton mAnnotIcon"  title="Delete Annotation" disabled>
+                    <div class="" >
+                      <svg viewBox="0 0 24 24"><path d="m0 0h24v24h-24z" fill="none"></path><path d="m6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2v-12h-12zm13-15h-3.5l-1-1h-5l-1 1h-3.5v2h14z"></path></svg>                         
                     </div>
                   </button>
                 </div>
@@ -558,6 +586,30 @@ See https://github.com/adobe-type-tools/cmap-resources
           <textarea id="errorMoreInfo" hidden='true' readonly="readonly"></textarea>
         </div>
       </div> <!-- mainContainer -->
+
+      <div id="annotOverlayContainer" class="hidden">
+        <div id="signatureOverlay" class="hidden">
+          <div class="header">
+            <div class="icon-btn overlayClose" d-ol="signatureOverlay">
+              <svg viewBox="0 0 24 24">
+                <path d="M 3.5999997,0 -1e-7,3.60002 8.3999997,12 -1e-7,20.39998 3.5999997,24 12,15.59998 20.4,24 24,20.39998 15.6,12 24,3.60002 20.4,0 12,8.40001 Z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="signature">
+            <canvas id="sig-canv"></canvas>
+            <div id="sig-background">
+              <div class="sign-here">Sign here</div>
+              <div id="clear-sign">Clear</div>
+            </div>
+          </div>
+          <div class="footer">
+            <button id="sign-submit" class="overlayButton">
+              Done
+            </button>
+          </div>
+        </div>
+      </div>
 
       <div id="overlayContainer" class="hidden">
         <div id="passwordOverlay" class="container hidden">

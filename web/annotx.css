@@ -1,3 +1,85 @@
+#annotOverlayContainer{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: hsla(0,0%,0%,.2);
+    z-index: 40000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#annotOverlayContainer > #signatureOverlay{
+    padding: 15px;
+    border-spacing: 4px;
+    color: hsl(0,0%,85%);
+    font-size: 12px;
+    line-height: 14px;
+    background-color: #474747;
+    background-image: url(images/texture.png), linear-gradient(hsla(0,0%,32%,.99), hsla(0,0%,27%,.95));
+    box-shadow: inset 1px 0 0 hsla(0,0%,100%,.08), inset 0 1px 1px hsla(0,0%,0%,.15), inset 0 -1px 0 hsla(0,0%,100%,.05), 0 1px 0 hsla(0,0%,0%,.15), 0 1px 1px hsla(0,0%,0%,.1);
+    border: 1px solid hsla(0,0%,0%,.5);
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+#signatureOverlay > .header{
+    display: flex;
+    justify-content: flex-end;
+}
+#signatureOverlay  .signature{
+    margin-top: 18px;
+    display: flex;
+    position: relative;
+}
+#signatureOverlay  .signature .canvas-container{
+    position: relative !important;
+    z-index: 1;
+}
+#signatureOverlay  .signature #sig-background{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: hsl(0,0%,85%);
+    color: darkgray;
+}
+#sig-background #clear-sign{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    z-index: 2;
+    font-weight: 600;
+    color: #757575;
+}
+#signatureOverlay .footer{
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+}
+#sig-canv{
+    width: 100%;
+    height: 200px;
+}
+.icon-btn{
+    width: 16px;
+    height: 16px;
+    color: hsl(0,0%,85%);
+    cursor: pointer;
+}
+.icon-btn:not(.axp-btn) path:not([fill=none]){
+    fill: currentColor;
+}
+.icon-btn:hover{
+    opacity: .5;
+}
 /* .toolbarButton#annotx-freeHand::before {
     content: url(images/toolbarButton-pencil.png);
 } */
@@ -34,14 +116,23 @@
     background: hsla(0,0%,0%,.5);
 }
 #annotx-fill, #annotx-border{
+    /* position: relative; */
+}
+.annotProps{
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+.axp-btn{
     position: relative;
 }
-#annotx-fill .cover, #annotx-border .cover{
+.axp-cover{
     position: absolute;
-    width: 100%;
-    height: 100%;
+    width: 100% !important;
+    height: 100% !important;
     left: 0;
     top: 0;
+    border-bottom: 1.2px solid currentColor;
 }
 #annotx-fill::before{
     /* content: url(images/fill.png); */
@@ -242,14 +333,15 @@
 .mAnnotIcon{
     color: hsl(0,0%,85%);
 }
-.mAnnotIcon path:not([fill=none]), .annotIcon path:not([fill=none]){
+.mAnnotIcon:not(.axp-btn) path:not([fill=none]), .annotIcon path:not([fill=none]){
     fill: currentColor;
 }
-.mAnnotIcon.stroked path:not([fill=none]), .annotIcon path:not([fill=none]){
+.mAnnotIcon.stroked:not(.axp-btn) path:not([fill=none]), .annotIcon path:not([fill=none]){
     stroke: currentColor;
 }
-
-
+.axp-btn path:not([fill=none]){
+    fill: hsl(0,0%,85%);
+}
 
 /* Range Slider */
 input[type=range].annotx-slider {
